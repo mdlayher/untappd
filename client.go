@@ -229,15 +229,8 @@ func timeUnitToDuration(timeFloat float64, measure string) time.Duration {
 		"minutes":      "m",
 	}
 
-	// Verify a known time unit is used
-	timeUnit, ok := timeUnits[measure]
-	if !ok {
-		// If unknown, return no duration
-		return 0
-	}
-
 	// Parse a Go time.Duration from string
-	duration, err := time.ParseDuration(fmt.Sprintf("%f%s", timeFloat, timeUnit))
+	duration, err := time.ParseDuration(fmt.Sprintf("%f%s", timeFloat, timeUnits[measure]))
 	if err != nil {
 		// If error, return no duration
 		return 0
