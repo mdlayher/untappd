@@ -1,6 +1,10 @@
 package untappd
 
 import (
+	"bytes"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -77,6 +81,74 @@ func TestErrorError(t *testing.T) {
 	}
 }
 
+// Test_checkResponseWrongContentType verifies that checkResponse returns an error
+// when the Content-Type header does not indicate application/json.
+func Test_checkResponseWrongContentType(t *testing.T) {
+	withHTTPResponse(t, http.StatusOK, "foo/bar", nil, func(t *testing.T, res *http.Response) {
+		if err := checkResponse(res); err.Error() != "expected application/json content type, but received foo/bar" {
+			t.Fatal(err)
+		}
+	})
+}
+
+// Test_checkResponseEOF verifies that checkResponse returns an io.EOF when no
+// JSON body is found in the HTTP response body.
+func Test_checkResponseJSONEOF(t *testing.T) {
+	withHTTPResponse(t, http.StatusInternalServerError, jsonContentType, nil, func(t *testing.T, res *http.Response) {
+		if err := checkResponse(res); err != io.EOF {
+			t.Fatal(err)
+		}
+	})
+}
+
+// Test_checkResponseEOF verifies that checkResponse returns an io.ErrUnexpectedEOF
+// when a short JSON body is found in the HTTP response body.
+func Test_checkResponseJSONUnexpectedEOF(t *testing.T) {
+	withHTTPResponse(t, http.StatusInternalServerError, jsonContentType, []byte("{"), func(t *testing.T, res *http.Response) {
+		if err := checkResponse(res); err != io.ErrUnexpectedEOF {
+			t.Fatal(err)
+		}
+	})
+}
+
+// Test_checkResponseEOF verifies that checkResponse returns the appropriate error
+// assuming all sanity checks pass, but the API did return a client-consumable error.
+func Test_checkResponseErrorOK(t *testing.T) {
+	withHTTPResponse(t, http.StatusInternalServerError, jsonContentType, apiErrJSON, func(t *testing.T, res *http.Response) {
+		apiErr := &Error{
+			Code:              500,
+			Detail:            "The user has not authorized this application or the token is invalid.",
+			Type:              "invalid_auth",
+			DeveloperFriendly: "The user has not authorized this application or the token is invalid.",
+			Duration:          time.Duration(0 * time.Second),
+		}
+
+		if err := checkResponse(res); err.Error() != apiErr.Error() {
+			t.Fatalf("unexpected API error: %v != %v", err, apiErr)
+		}
+	})
+}
+
+// Test_checkResponseEOF verifies that checkResponse returns no error when HTTP
+// status is OK, but response body is empty.
+func Test_checkResponseOKNoBody(t *testing.T) {
+	withHTTPResponse(t, http.StatusOK, jsonContentType, nil, func(t *testing.T, res *http.Response) {
+		if err := checkResponse(res); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+// Test_checkResponseEOF verifies that checkResponse returns no error when HTTP
+// status is OK, but response body contains data.
+func Test_checkResponseOKWithBody(t *testing.T) {
+	withHTTPResponse(t, http.StatusOK, jsonContentType, []byte("{}"), func(t *testing.T, res *http.Response) {
+		if err := checkResponse(res); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
 // Test_timeUnitToDuration verifies that timeUnitToDuration provides proper
 // output for a variety of time number and measure values.
 func Test_timeUnitToDuration(t *testing.T) {
@@ -106,3 +178,31 @@ func Test_timeUnitToDuration(t *testing.T) {
 		}
 	}
 }
+
+// withHTTPResponse is a test helper which generates a *http.Response and invokes
+// an input closure, used for testing.
+func withHTTPResponse(t *testing.T, code int, contentType string, body []byte, fn func(t *testing.T, res *http.Response)) {
+	res := &http.Response{
+		StatusCode: code,
+		Header: http.Header{
+			"Content-Type": []string{contentType},
+		},
+		Body: ioutil.NopCloser(bytes.NewReader(body)),
+	}
+
+	fn(t, res)
+}
+
+// JSON taken from Untappd APIv4 documentation: https://untappd.com/api/docs
+var apiErrJSON = []byte(`{
+  "meta": {
+    "code": 500,
+    "error_detail": "The user has not authorized this application or the token is invalid.",
+    "error_type": "invalid_auth",
+    "developer_friendly": "The user has not authorized this application or the token is invalid.",
+    "response_time": {
+      "time": 0,
+      "measure": "seconds"
+    }
+  }
+}`)
