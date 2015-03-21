@@ -21,6 +21,10 @@ import (
 const (
 	// jsonContentType is the content type for JSON data
 	jsonContentType = "application/json"
+
+	// untappdUserAgent is the user agent this package will rpoert to
+	// the Untappd APIv4.
+	untappdUserAgent = "github.com/mdlayher/untappd"
 )
 
 var (
@@ -80,9 +84,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 		clientID:     clientID,
 		clientSecret: clientSecret,
 
-		// For now, user agent simply indicates the library making the
-		// calls to the API
-		userAgent: "github.com/mdlayher/untappd",
+		userAgent: untappdUserAgent,
 	}
 
 	// Add "services" which allow access to various API methods

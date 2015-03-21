@@ -5,6 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -78,6 +80,129 @@ func TestErrorError(t *testing.T) {
 		if res := err.Error(); res != tt.result {
 			t.Fatalf("unexpected result string for test %q: %q != %q", tt.description, res, tt.result)
 		}
+	}
+}
+
+// TestClient_requestContainsAPIKeys verifies that both client_id and client_secret
+// are always present in API requests.
+func TestClient_requestContainsAPIKeys(t *testing.T) {
+	method := "GET"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		q := r.URL.Query()
+
+		if q.Get("client_id") == "" {
+			t.Fatal("empty client_id query parameter")
+		}
+		if q.Get("client_secret") == "" {
+			t.Fatal("empty client_secret query parameter")
+		}
+	})
+	defer done()
+
+	if _, err := c.request(method, "foo", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestClient_requestContainsQueryParameters verifies that all custom query
+// parameters are present in API requests.
+func TestClient_requestContainsQueryParameters(t *testing.T) {
+	method := "POST"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		q := r.URL.Query()
+
+		if s := q.Get("foo"); s != "bar" {
+			t.Fatalf("unexpected query parameter: %q != %q", s, "bar")
+		}
+		if s := q.Get("bar"); s != "baz" {
+			t.Fatalf("unexpected query parameter: %q != %q", s, "baz")
+		}
+
+		s, ok := q["baz"]
+		if !ok {
+			t.Fatal("missing query parameter: baz")
+		}
+		for _, ss := range s {
+			if ss != "qux" && ss != "corge" {
+				t.Fatal("did not find \"qux\" or \"corge\" in key \"baz\"")
+			}
+		}
+	})
+	defer done()
+
+	if _, err := c.request(method, "foo", url.Values{
+		"foo": []string{"bar"},
+		"bar": []string{"baz"},
+		"baz": []string{"qux", "corge"},
+	}, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestClient_requestContainsHeaders verifies that all typical headers are set
+// by the client during an API request.
+func TestClient_requestContainsHeaders(t *testing.T) {
+	method := "PUT"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		h := r.Header
+
+		if s := h.Get("Accept"); s != jsonContentType {
+			t.Fatalf("unexpected Accept header: %q != %q", s, jsonContentType)
+		}
+		if s := h.Get("Content-Type"); s != jsonContentType {
+			t.Fatalf("unexpected Content-Type header: %q != %q", s, jsonContentType)
+		}
+
+		if s := h.Get("User-Agent"); s != untappdUserAgent {
+			t.Fatalf("unexpected User-Agent header: %q != %q", s, untappdUserAgent)
+		}
+	})
+	defer done()
+
+	if _, err := c.request(method, "foo", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestClient_requestContainsBody verifies that a response body can be
+// unmarshaled from JSON following an API request.
+func TestClient_requestContainsBody(t *testing.T) {
+	method := "GET"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		// Use canned JSON with HTTP 500, though the HTTP code here will
+		// return 200, for processing
+		w.Write(apiErrJSON)
+	})
+	defer done()
+
+	var v struct {
+		Meta struct {
+			Code int `json:"code"`
+		} `json:"meta"`
+	}
+
+	if _, err := c.request(method, "foo", nil, &v); err != nil {
+		t.Fatal(err)
+	}
+
+	if c := v.Meta.Code; c != http.StatusInternalServerError {
+		t.Fatalf("unexpected code in response body: %d != %d", c, http.StatusInternalServerError)
 	}
 }
 
@@ -191,6 +316,35 @@ func withHTTPResponse(t *testing.T, code int, contentType string, body []byte, f
 	}
 
 	fn(t, res)
+}
+
+// testClient wires up a new Client with a HTTP test server, allowing for easy
+// setup and teardown of repetitive code.  The input closure is invoked in the
+// HTTP server, to change the functionality as needed for each test.
+func testClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", jsonContentType)
+
+		if fn != nil {
+			fn(t, w, r)
+		}
+	}))
+
+	client, err := NewClient("foo", "bar", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	u, err := url.Parse(srv.URL + "/v4")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	client.url = u
+
+	return client, func() {
+		srv.Close()
+	}
 }
 
 // JSON taken from Untappd APIv4 documentation: https://untappd.com/api/docs
