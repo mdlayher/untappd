@@ -1,5 +1,8 @@
-// Package untappd provides an Untappd APIv4 client, written in Go.
+// Package untappd provides an Untappd APIv4 client, written in Go.  MIT Licensed.
 //
+// To use this client with the Untappd APIv4, you must register for an API key
+// here: https://untappd.com/api/register.
+
 // This package is inspired by Google's go-github library, as well as
 // Antoine Grondin's canlii library.  Both can be found on GitHub:
 //  - https://github.com/google/go-github

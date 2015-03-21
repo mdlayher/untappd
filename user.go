@@ -6,7 +6,8 @@ import (
 )
 
 // User represents an Untappd user.
-// TODO(mdlayher): write out fields to access more user information.
+//
+// BUG(mdlayher): write out fields to access more user information.
 type User struct {
 	UID       int64  `json:"uid"`
 	ID        int64  `json:"id"`
