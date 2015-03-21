@@ -16,15 +16,15 @@ type User struct {
 	LastName  string `json:"last_name"`
 }
 
-// userService is a "service" which allows access to API methods involving users.
-type userService struct {
+// UserService is a "service" which allows access to API methods involving users.
+type UserService struct {
 	client *Client
 }
 
 // Info queries for information about a User with the specified username.
 // If the compact parameter is set to 'true', only basic user information will
 // be populated.
-func (u *userService) Info(username string, compact bool) (*User, *http.Response, error) {
+func (u *UserService) Info(username string, compact bool) (*User, *http.Response, error) {
 	// Determine if a compact response is requested
 	q := url.Values{}
 	if compact {

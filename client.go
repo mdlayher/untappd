@@ -86,7 +86,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 	}
 
 	// Add "services" which allow access to various API methods
-	c.User = &userService{client: c}
+	c.User = &UserService{client: c}
 
 	return c, nil
 }
