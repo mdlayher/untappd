@@ -204,14 +204,15 @@ func checkResponse(res *http.Response) error {
 	}
 
 	// Assemble Error struct from API response
+	m := apiErr.Meta
 	return &Error{
-		Code:              apiErr.Meta.Code,
-		Detail:            apiErr.Meta.ErrorDetail,
-		Type:              apiErr.Meta.ErrorType,
-		DeveloperFriendly: apiErr.Meta.DeveloperFriendly,
+		Code:              m.Code,
+		Detail:            m.ErrorDetail,
+		Type:              m.ErrorType,
+		DeveloperFriendly: m.DeveloperFriendly,
 		Duration: timeUnitToDuration(
-			apiErr.Meta.ResponseTime.Time,
-			apiErr.Meta.ResponseTime.Measure,
+			m.ResponseTime.Time,
+			m.ResponseTime.Measure,
 		),
 	}
 }
