@@ -8,6 +8,7 @@ package untappd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,6 +18,15 @@ import (
 const (
 	// jsonContentType is the content type for JSON data
 	jsonContentType = "application/json"
+)
+
+var (
+	// ErrNoClientID is returned when an empty Client ID is passed to NewClient.
+	ErrNoClientID = errors.New("no client ID")
+
+	// ErrNoClientSecret is returned when an empty Client Secret is passed
+	// to NewClient.
+	ErrNoClientSecret = errors.New("no client secret")
 )
 
 // Client is a HTTP client for the Untappd APIv4.  It enables access to various
@@ -29,6 +39,11 @@ type Client struct {
 	clientSecret string
 
 	userAgent string
+
+	// Methods involving a User
+	User interface {
+		Info(username string, compact bool) (*User, *http.Response, error)
+	}
 }
 
 // NewClient creates a properly initialized instance of Client, using the input
@@ -40,6 +55,14 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 	// If input client is nil, use http.DefaultClient
 	if client == nil {
 		client = http.DefaultClient
+	}
+
+	// Disallow empty ID and secret
+	if clientID == "" {
+		return nil, ErrNoClientID
+	}
+	if clientSecret == "" {
+		return nil, ErrNoClientSecret
 	}
 
 	// Set up basic client
@@ -58,6 +81,9 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 		// calls to the API
 		userAgent: "github.com/mdlayher/untappd",
 	}
+
+	// Add "services" which allow access to various API methods
+	c.User = &userService{client: c}
 
 	return c, nil
 }
