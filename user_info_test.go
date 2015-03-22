@@ -115,7 +115,17 @@ func userInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWrite
 }
 
 // Canned user JSON response, taken from documentation: https://untappd.com/api/docs#userinfo
-var gregavolaUserJSON = []byte(`{
+var gregavolaUserJSON = []byte(`
+{
+  "meta": {
+    "code": 200,
+    "response_time": {
+      "time": 0,
+      "measure": "seconds"
+    }
+  },
+  "notifications": {},
+  "response": {
   "user": {
     "uid": 1,
     "id": 1,
@@ -241,4 +251,4 @@ var gregavolaUserJSON = []byte(`{
     },
     "date_joined": "Wed, 07 Jul 2010 05:51:10 +0000"
   }
-}`)
+}}`)

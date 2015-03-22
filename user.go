@@ -33,7 +33,10 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 
 	// Temporary struct to unmarshal user JSON
 	var v struct {
-		User *User `json:"user"`
+		// BUG(mdlayher): determine if Meta struct should be returned as well
+		Response struct {
+			User *User `json:"user"`
+		} `json:"response"`
 	}
 
 	// Perform request for user information by username
@@ -43,5 +46,5 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 	}
 
 	// Return results
-	return v.User, res, nil
+	return v.Response.User, res, nil
 }
