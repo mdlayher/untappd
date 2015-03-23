@@ -50,6 +50,8 @@ type Client struct {
 	// Methods involving a User
 	User interface {
 		Info(username string, compact bool) (*User, *http.Response, error)
+		Friends(username string) ([]*User, *http.Response, error)
+		FriendsOffsetLimit(username string, offset uint, limit uint) ([]*User, *http.Response, error)
 	}
 }
 
