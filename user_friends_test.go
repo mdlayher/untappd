@@ -55,26 +55,7 @@ func TestClientUserFriendsOffsetLimitBadUser(t *testing.T) {
 	defer done()
 
 	_, _, err := c.User.FriendsOffsetLimit("foo", 0, 25)
-	if err == nil {
-		t.Fatal("error should have occurred, but error is nil")
-	}
-
-	uErr, ok := err.(*Error)
-	if !ok {
-		t.Fatal("error is not of type *Error")
-	}
-
-	if c := uErr.Code; c != http.StatusNotFound {
-		t.Fatalf("unexpected error code: %d != %d", c, http.StatusNotFound)
-	}
-	detail := "Invalid user."
-	if d := uErr.Detail; d != detail {
-		t.Fatalf("unexpected error detail: %q != %q", d, detail)
-	}
-	eType := "invalid_user"
-	if e := uErr.Type; e != eType {
-		t.Fatalf("unexpected error type: %q != %q", e, eType)
-	}
+	assertInvalidUserErr(t, err)
 }
 
 // TestClientUserFriendsOffsetLimitOK verifies that Client.User.FriendsOffsetLimit

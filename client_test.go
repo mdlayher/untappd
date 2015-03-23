@@ -347,6 +347,31 @@ func testClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *ht
 	}
 }
 
+// assertInvalidUserErr asserts that an input error was generated from the
+// invalidUserErrJSON used in some tests.
+func assertInvalidUserErr(t *testing.T, err error) {
+	if err == nil {
+		t.Fatal("error should have occurred, but error is nil")
+	}
+
+	uErr, ok := err.(*Error)
+	if !ok {
+		t.Fatal("error is not of type *Error")
+	}
+
+	if c := uErr.Code; c != http.StatusNotFound {
+		t.Fatalf("unexpected error code: %d != %d", c, http.StatusNotFound)
+	}
+	detail := "Invalid user."
+	if d := uErr.Detail; d != detail {
+		t.Fatalf("unexpected error detail: %q != %q", d, detail)
+	}
+	eType := "invalid_user"
+	if e := uErr.Type; e != eType {
+		t.Fatalf("unexpected error type: %q != %q", e, eType)
+	}
+}
+
 // JSON taken from Untappd APIv4 documentation: https://untappd.com/api/docs
 var apiErrJSON = []byte(`{
   "meta": {
