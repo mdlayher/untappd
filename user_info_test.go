@@ -91,7 +91,10 @@ func userInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWrite
 			t.Fatalf("unexpected HTTP path prefix: %q != %q", p, prefix)
 		}
 
-		fn(t, w, r)
+		// Guard against panics
+		if fn != nil {
+			fn(t, w, r)
+		}
 	})
 }
 
