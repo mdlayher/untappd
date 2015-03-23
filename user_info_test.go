@@ -18,7 +18,7 @@ func TestClientUserInfoBadUser(t *testing.T) {
 
 		// TODO(mdlayher): determine the actual error code and type for unknown user
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"meta":{"code":404,"error_detail":"Invalid user.","error_type":"invalid_user","response_time":{"time":0,"measure":"seconds"}}}`))
+		w.Write(invalidUserErrJSON)
 	})
 	defer done()
 

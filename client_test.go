@@ -360,3 +360,6 @@ var apiErrJSON = []byte(`{
     }
   }
 }`)
+
+// invalidUserErrJSON is canned JSON used to test for invalid user handling
+var invalidUserErrJSON = []byte(`{"meta":{"code":404,"error_detail":"Invalid user.","error_type":"invalid_user","response_time":{"time":0,"measure":"seconds"}}}`)
