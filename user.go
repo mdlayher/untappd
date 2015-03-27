@@ -41,7 +41,6 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 
 	// Temporary struct to unmarshal user JSON
 	var v struct {
-		// BUG(mdlayher): determine if Meta struct should be returned as well
 		Response struct {
 			User *User `json:"user"`
 		} `json:"response"`
@@ -89,12 +88,8 @@ func (u *UserService) FriendsOffsetLimit(username string, offset uint, limit uin
 
 	// Temporary struct to unmarshal friends JSON
 	var v struct {
-		// BUG(mdlayher): determine if Meta struct should be returned as well
 		Response struct {
 			Count int `json:"count"`
-			// BUG(mdlayher): Untappd API may return an object here for one
-			// result, instead of an array.  This may require further JSON
-			// parsing before unmarshaling into a struct.
 			Items []struct {
 				// BUG(mdlayher): parse more fields later
 				User *User `json:"user"`
@@ -152,12 +147,8 @@ func (u *UserService) BadgesOffset(username string, offset uint) ([]*Badge, *htt
 
 	// Temporary struct to unmarshal badges JSON
 	var v struct {
-		// BUG(mdlayher): determine if Meta struct should be returned as well
 		Response struct {
-			Count int `json:"count"`
-			// BUG(mdlayher): Untappd API may return an object here for one
-			// result, instead of an array.  This may require further JSON
-			// parsing before unmarshaling into a struct.
+			Count int      `json:"count"`
 			Items []*Badge `json:"items"`
 		} `json:"response"`
 	}
