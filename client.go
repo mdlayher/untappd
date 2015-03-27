@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -34,6 +35,10 @@ var (
 	// ErrNoClientSecret is returned when an empty Client Secret is passed
 	// to NewClient.
 	ErrNoClientSecret = errors.New("no client secret")
+
+	// errInvalidTimeUnit is returned when the Untappd API returns an
+	// unrecognized time unit.
+	errInvalidTimeUnit = errors.New("invalid time unit")
 )
 
 // Client is a HTTP client for the Untappd APIv4.  It enables access to various
@@ -49,9 +54,14 @@ type Client struct {
 
 	// Methods involving a User
 	User interface {
+		// https://untappd.com/api/docs#userinfo
 		Info(username string, compact bool) (*User, *http.Response, error)
+
+		// https://untappd.com/api/docs#userfriends
 		Friends(username string) ([]*User, *http.Response, error)
 		FriendsOffsetLimit(username string, offset uint, limit uint) ([]*User, *http.Response, error)
+
+		// https://untappd.com/api/docs#userbadges
 		Badges(username string) ([]*Badge, *http.Response, error)
 		BadgesOffset(username string, offset uint) ([]*Badge, *http.Response, error)
 	}
@@ -193,14 +203,11 @@ func checkResponse(res *http.Response) error {
 	// a more consumable form on error output
 	var apiErr struct {
 		Meta struct {
-			Code              int    `json:"code"`
-			ErrorDetail       string `json:"error_detail"`
-			ErrorType         string `json:"error_type"`
-			DeveloperFriendly string `json:"developer_friendly"`
-			ResponseTime      struct {
-				Time    float64 `json:"time"`
-				Measure string  `json:"measure"`
-			} `json:"response_time"`
+			Code              int          `json:"code"`
+			ErrorDetail       string       `json:"error_detail"`
+			ErrorType         string       `json:"error_type"`
+			DeveloperFriendly string       `json:"developer_friendly"`
+			ResponseTime      responseTime `json:"response_time"`
 		} `json:"meta"`
 	}
 
@@ -216,16 +223,25 @@ func checkResponse(res *http.Response) error {
 		Detail:            m.ErrorDetail,
 		Type:              m.ErrorType,
 		DeveloperFriendly: m.DeveloperFriendly,
-		Duration: timeUnitToDuration(
-			m.ResponseTime.Time,
-			m.ResponseTime.Measure,
-		),
+		Duration:          time.Duration(m.ResponseTime),
 	}
 }
 
-// timeUnitToDuration parses a time float64 and measure string from the Untappd
-// APIv4, and converts them into a native Go time.Duration.
-func timeUnitToDuration(timeFloat float64, measure string) time.Duration {
+// responseTime implements json.Unmarshaler, so that duration responses
+// in the Untappd APIv4 can be decoded directly into Go time.Duration structs.
+type responseTime time.Duration
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (r *responseTime) UnmarshalJSON(data []byte) error {
+	var v struct {
+		Time    float64 `json:"time"`
+		Measure string  `json:"measure"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
 	// Known measure strings mapped to Go parse-able equivalents
 	timeUnits := map[string]string{
 		"milliseconds": "ms",
@@ -234,11 +250,11 @@ func timeUnitToDuration(timeFloat float64, measure string) time.Duration {
 	}
 
 	// Parse a Go time.Duration from string
-	duration, err := time.ParseDuration(fmt.Sprintf("%f%s", timeFloat, timeUnits[measure]))
-	if err != nil {
-		// If error, return no duration
-		return 0
+	d, err := time.ParseDuration(fmt.Sprintf("%f%s", v.Time, timeUnits[v.Measure]))
+	if err != nil && strings.Contains(err.Error(), "time: missing unit in duration") {
+		return errInvalidTimeUnit
 	}
 
-	return duration
+	*r = responseTime(d)
+	return err
 }

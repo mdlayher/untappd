@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -274,32 +275,95 @@ func Test_checkResponseOKWithBody(t *testing.T) {
 	})
 }
 
-// Test_timeUnitToDuration verifies that timeUnitToDuration provides proper
-// output for a variety of time number and measure values.
-func Test_timeUnitToDuration(t *testing.T) {
+// Test_responseTimeUnmarshalJSON verifies that responseTime.UnmarshalJSON
+// provides proper time.Duration for a variety of responseTime JSON values
+// from the Untappd APIv4.
+func Test_responseTimeUnmarshalJSON(t *testing.T) {
 	var tests = []struct {
 		description string
-		number      float64
-		measure     string
+		body        []byte
 		result      time.Duration
+		err         error
 	}{
-		{"0.05 milliseconds", 0.05, "milliseconds", time.Duration(5*time.Millisecond) / 100},
-		{"5 milliseconds", 5, "milliseconds", time.Duration(5 * time.Millisecond)},
-		{"500 milliseconds", 500, "milliseconds", time.Duration(500 * time.Millisecond)},
-		{"0.5 seconds", 0.5, "seconds", time.Duration(500 * time.Millisecond)},
-		{"1 seconds", 1, "seconds", time.Duration(1 * time.Second)},
-		{"10 seconds", 10, "seconds", time.Duration(10 * time.Second)},
-		{"0.5 minutes", 0.5, "minutes", time.Duration(30 * time.Second)},
-		{"1 minutes", 1, "minutes", time.Duration(1 * time.Minute)},
-		{"2 minutes", 2, "minutes", time.Duration(2 * time.Minute)},
-		{"invalid: 100 hours", 100, "hours", time.Duration(0)},
-		{"invalid: 10 days", 10, "days", time.Duration(0)},
-		{"invalid: 1 lightyears", 1, "lightyears", time.Duration(0)},
+		{
+			description: "0.05 milliseconds",
+			body:        []byte(`{"time":0.05,"measure":"milliseconds"}`),
+			result:      time.Duration(5*time.Millisecond) / 100,
+		},
+		{
+			description: "5 milliseconds",
+			body:        []byte(`{"time":5,"measure":"milliseconds"}`),
+			result:      time.Duration(5 * time.Millisecond),
+		},
+		{
+			description: "500 milliseconds",
+			body:        []byte(`{"time":500,"measure":"milliseconds"}`),
+			result:      time.Duration(500 * time.Millisecond),
+		},
+		{
+			description: "0.5 seconds",
+			body:        []byte(`{"time":0.5,"measure":"seconds"}`),
+			result:      time.Duration(500 * time.Millisecond),
+		},
+		{
+			description: "1 seconds",
+			body:        []byte(`{"time":1,"measure":"seconds"}`),
+			result:      time.Duration(1 * time.Second),
+		},
+		{
+			description: "10 seconds",
+			body:        []byte(`{"time":10,"measure":"seconds"}`),
+			result:      time.Duration(10 * time.Second),
+		},
+		{
+			description: "0.5 minutes",
+			body:        []byte(`{"time":0.5,"measure":"minutes"}`),
+			result:      time.Duration(30 * time.Second),
+		},
+		{
+			description: "1 minutes",
+			body:        []byte(`{"time":1,"measure":"minutes"}`),
+			result:      time.Duration(1 * time.Minute),
+		},
+		{
+			description: "2 minutes",
+			body:        []byte(`{"time":2,"measure":"minutes"}`),
+			result:      time.Duration(2 * time.Minute),
+		},
+		{
+			description: "invalid: 100 hours",
+			body:        []byte(`{"time":100,"measure":"hours"}`),
+			err:         errInvalidTimeUnit,
+		},
+		{
+			description: "invalid: 10 days",
+			body:        []byte(`{"time":10,"measure":"days"}`),
+			err:         errInvalidTimeUnit,
+		},
+		{
+			description: "invalid: 1 lightyears",
+			body:        []byte(`{"time":1,"measure":"lightyears"}`),
+			err:         errInvalidTimeUnit,
+		},
+		{
+			description: "bad JSON",
+			body:        []byte(`}`),
+			err:         errors.New("invalid character '}' looking for beginning of value"),
+		},
 	}
 
 	for _, tt := range tests {
-		if dur := timeUnitToDuration(tt.number, tt.measure); dur != tt.result {
-			t.Fatalf("unexpected duration for test %q: %v != %v", tt.description, dur, tt.result)
+		r := new(responseTime)
+		err := r.UnmarshalJSON(tt.body)
+		if tt.err == nil && err != nil {
+			t.Fatal(err)
+		}
+		if tt.err != nil && err.Error() != tt.err.Error() {
+			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
+		}
+
+		if *r != responseTime(tt.result) {
+			t.Fatalf("unexpected duration for test %q: %v != %v", tt.description, r, tt.result)
 		}
 	}
 }
