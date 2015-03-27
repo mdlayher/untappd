@@ -117,3 +117,57 @@ func (u *UserService) FriendsOffsetLimit(username string, offset uint, limit uin
 	// Return results
 	return users, res, nil
 }
+
+// Badge represents an Untappd badge.
+//
+// BUG(mdlayher): write out fields to access more badge information.
+type Badge struct {
+	ID          int64  `json:"badge_id"`
+	CheckinID   int64  `json:"checkin_id"`
+	Name        string `json:"badge_name"`
+	Description string `json:"badge_description"`
+}
+
+// Badges queries for information about a User's badges.  The username
+// parameter specifies the User whose badges will be returned.
+//
+// This method returns up to 50 of the User's most recently earned badges.
+// For more granular control, and to page through the badges list, use
+// BadgesOffset instead.
+func (u *UserService) Badges(username string) ([]*Badge, *http.Response, error) {
+	// Use default parameters as specified by API
+	return u.BadgesOffset(username, 0)
+}
+
+// BadgesOffset queries for information about a User's badges, but also
+// accepts an offset parameter to enable paging through more than 50
+// badges.  The username parameter specifies the User whose badges will be
+// returned.
+//
+// 50 badges is the maximum number of badges which may be returned by one call.
+func (u *UserService) BadgesOffset(username string, offset uint) ([]*Badge, *http.Response, error) {
+	q := url.Values{
+		"offset": []string{strconv.Itoa(int(offset))},
+	}
+
+	// Temporary struct to unmarshal badges JSON
+	var v struct {
+		// BUG(mdlayher): determine if Meta struct should be returned as well
+		Response struct {
+			Count int `json:"count"`
+			// BUG(mdlayher): Untappd API may return an object here for one
+			// result, instead of an array.  This may require further JSON
+			// parsing before unmarshaling into a struct.
+			Items []*Badge `json:"items"`
+		} `json:"response"`
+	}
+
+	// Perform request for user badges by username
+	res, err := u.client.request("GET", "user/badges/"+username, q, &v)
+	if err != nil {
+		return nil, res, err
+	}
+
+	// Return results
+	return v.Response.Items, res, nil
+}

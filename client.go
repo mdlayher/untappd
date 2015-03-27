@@ -52,6 +52,8 @@ type Client struct {
 		Info(username string, compact bool) (*User, *http.Response, error)
 		Friends(username string) ([]*User, *http.Response, error)
 		FriendsOffsetLimit(username string, offset uint, limit uint) ([]*User, *http.Response, error)
+		Badges(username string) ([]*Badge, *http.Response, error)
+		BadgesOffset(username string, offset uint) ([]*Badge, *http.Response, error)
 	}
 }
 
