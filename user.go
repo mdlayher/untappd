@@ -80,6 +80,10 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 // This method returns up to a maximum of 25 friends.  For more granular
 // control, and to page through the friends list, use FriendsOffsetLimit
 // instead.
+//
+// The resulting slice of User structs contains a more limited set of user
+// information than a call to Info would.  However, basic information such as
+// user ID, username, first name, last name, bio, etc. is available.
 func (u *UserService) Friends(username string) ([]*User, *http.Response, error) {
 	// Use default parameters as specified by API
 	return u.FriendsOffsetLimit(username, 0, 25)
