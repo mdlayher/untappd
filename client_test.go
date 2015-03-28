@@ -2,7 +2,6 @@ package untappd
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -273,99 +272,6 @@ func Test_checkResponseOKWithBody(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-}
-
-// Test_responseTimeUnmarshalJSON verifies that responseTime.UnmarshalJSON
-// provides proper time.Duration for a variety of responseTime JSON values
-// from the Untappd APIv4.
-func Test_responseTimeUnmarshalJSON(t *testing.T) {
-	var tests = []struct {
-		description string
-		body        []byte
-		result      time.Duration
-		err         error
-	}{
-		{
-			description: "0.05 milliseconds",
-			body:        []byte(`{"time":0.05,"measure":"milliseconds"}`),
-			result:      time.Duration(5*time.Millisecond) / 100,
-		},
-		{
-			description: "5 milliseconds",
-			body:        []byte(`{"time":5,"measure":"milliseconds"}`),
-			result:      time.Duration(5 * time.Millisecond),
-		},
-		{
-			description: "500 milliseconds",
-			body:        []byte(`{"time":500,"measure":"milliseconds"}`),
-			result:      time.Duration(500 * time.Millisecond),
-		},
-		{
-			description: "0.5 seconds",
-			body:        []byte(`{"time":0.5,"measure":"seconds"}`),
-			result:      time.Duration(500 * time.Millisecond),
-		},
-		{
-			description: "1 seconds",
-			body:        []byte(`{"time":1,"measure":"seconds"}`),
-			result:      time.Duration(1 * time.Second),
-		},
-		{
-			description: "10 seconds",
-			body:        []byte(`{"time":10,"measure":"seconds"}`),
-			result:      time.Duration(10 * time.Second),
-		},
-		{
-			description: "0.5 minutes",
-			body:        []byte(`{"time":0.5,"measure":"minutes"}`),
-			result:      time.Duration(30 * time.Second),
-		},
-		{
-			description: "1 minutes",
-			body:        []byte(`{"time":1,"measure":"minutes"}`),
-			result:      time.Duration(1 * time.Minute),
-		},
-		{
-			description: "2 minutes",
-			body:        []byte(`{"time":2,"measure":"minutes"}`),
-			result:      time.Duration(2 * time.Minute),
-		},
-		{
-			description: "invalid: 100 hours",
-			body:        []byte(`{"time":100,"measure":"hours"}`),
-			err:         errInvalidTimeUnit,
-		},
-		{
-			description: "invalid: 10 days",
-			body:        []byte(`{"time":10,"measure":"days"}`),
-			err:         errInvalidTimeUnit,
-		},
-		{
-			description: "invalid: 1 lightyears",
-			body:        []byte(`{"time":1,"measure":"lightyears"}`),
-			err:         errInvalidTimeUnit,
-		},
-		{
-			description: "bad JSON",
-			body:        []byte(`}`),
-			err:         errors.New("invalid character '}' looking for beginning of value"),
-		},
-	}
-
-	for _, tt := range tests {
-		r := new(responseTime)
-		err := r.UnmarshalJSON(tt.body)
-		if tt.err == nil && err != nil {
-			t.Fatal(err)
-		}
-		if tt.err != nil && err.Error() != tt.err.Error() {
-			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
-		}
-
-		if *r != responseTime(tt.result) {
-			t.Fatalf("unexpected duration for test %q: %v != %v", tt.description, r, tt.result)
-		}
-	}
 }
 
 // withHTTPResponse is a test helper which generates a *http.Response and invokes

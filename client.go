@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -35,10 +34,6 @@ var (
 	// ErrNoClientSecret is returned when an empty Client Secret is passed
 	// to NewClient.
 	ErrNoClientSecret = errors.New("no client secret")
-
-	// errInvalidTimeUnit is returned when the Untappd API returns an
-	// unrecognized time unit.
-	errInvalidTimeUnit = errors.New("invalid time unit")
 )
 
 // Client is a HTTP client for the Untappd APIv4.  It enables access to various
@@ -225,36 +220,4 @@ func checkResponse(res *http.Response) error {
 		DeveloperFriendly: m.DeveloperFriendly,
 		Duration:          time.Duration(m.ResponseTime),
 	}
-}
-
-// responseTime implements json.Unmarshaler, so that duration responses
-// in the Untappd APIv4 can be decoded directly into Go time.Duration structs.
-type responseTime time.Duration
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (r *responseTime) UnmarshalJSON(data []byte) error {
-	var v struct {
-		Time    float64 `json:"time"`
-		Measure string  `json:"measure"`
-	}
-
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-
-	// Known measure strings mapped to Go parse-able equivalents
-	timeUnits := map[string]string{
-		"milliseconds": "ms",
-		"seconds":      "s",
-		"minutes":      "m",
-	}
-
-	// Parse a Go time.Duration from string
-	d, err := time.ParseDuration(fmt.Sprintf("%f%s", v.Time, timeUnits[v.Measure]))
-	if err != nil && strings.Contains(err.Error(), "time: missing unit in duration") {
-		return errInvalidTimeUnit
-	}
-
-	*r = responseTime(d)
-	return err
 }
