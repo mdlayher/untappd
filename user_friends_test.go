@@ -33,17 +33,6 @@ func TestClientUserFriendsOK(t *testing.T) {
 	}
 }
 
-// TestClientUserFriendsOffsetLimitOverLimit verifies that Client.User.FriendsOffsetLimit
-// returns an error when a number greater than the maximum limit is provided.
-func TestClientUserFriendsOffsetLimitOverLimit(t *testing.T) {
-	c, done := userFriendsTestClient(t, nil)
-	defer done()
-
-	if _, _, err := c.User.FriendsOffsetLimit("foo", 0, 26); err != errOverLimit {
-		t.Fatalf("unexpected error: %v != %v", err, errOverLimit)
-	}
-}
-
 // TestClientUserFriendsOffsetLimitBadUser verifies that Client.User.FriendsOffsetLimit
 // returns an error when an invalid user is queried.
 func TestClientUserFriendsOffsetLimitBadUser(t *testing.T) {
