@@ -198,11 +198,11 @@ func checkResponse(res *http.Response) error {
 	// a more consumable form on error output
 	var apiErr struct {
 		Meta struct {
-			Code              int          `json:"code"`
-			ErrorDetail       string       `json:"error_detail"`
-			ErrorType         string       `json:"error_type"`
-			DeveloperFriendly string       `json:"developer_friendly"`
-			ResponseTime      responseTime `json:"response_time"`
+			Code              int              `json:"code"`
+			ErrorDetail       string           `json:"error_detail"`
+			ErrorType         string           `json:"error_type"`
+			DeveloperFriendly string           `json:"developer_friendly"`
+			ResponseTime      responseDuration `json:"response_time"`
 		} `json:"meta"`
 	}
 

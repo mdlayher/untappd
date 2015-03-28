@@ -11,10 +11,10 @@ var (
 	errBadJSON = errors.New("invalid character '}' looking for beginning of value")
 )
 
-// Test_responseTimeUnmarshalJSON verifies that responseTime.UnmarshalJSON
-// provides proper time.Duration for a variety of responseTime JSON values
+// Test_responseDurationUnmarshalJSON verifies that responseDuration.UnmarshalJSON
+// provides proper time.Duration for a variety of responseDuration JSON values
 // from the Untappd APIv4.
-func Test_responseTimeUnmarshalJSON(t *testing.T) {
+func Test_responseDurationUnmarshalJSON(t *testing.T) {
 	var tests = []struct {
 		description string
 		body        []byte
@@ -89,7 +89,7 @@ func Test_responseTimeUnmarshalJSON(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		r := new(responseTime)
+		r := new(responseDuration)
 		err := r.UnmarshalJSON(tt.body)
 		if tt.err == nil && err != nil {
 			t.Fatal(err)
@@ -98,7 +98,7 @@ func Test_responseTimeUnmarshalJSON(t *testing.T) {
 			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
 		}
 
-		if *r != responseTime(tt.result) {
+		if *r != responseDuration(tt.result) {
 			t.Fatalf("unexpected duration for test %q: %v != %v", tt.description, r, tt.result)
 		}
 	}

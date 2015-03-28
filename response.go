@@ -19,12 +19,12 @@ var (
 	errInvalidTimeUnit = errors.New("invalid time unit")
 )
 
-// responseTime implements json.Unmarshaler, so that duration responses
+// responseDuration implements json.Unmarshaler, so that duration responses
 // in the Untappd APIv4 can be decoded directly into Go time.Duration structs.
-type responseTime time.Duration
+type responseDuration time.Duration
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (r *responseTime) UnmarshalJSON(data []byte) error {
+func (r *responseDuration) UnmarshalJSON(data []byte) error {
 	var v struct {
 		Time    float64 `json:"time"`
 		Measure string  `json:"measure"`
@@ -47,7 +47,7 @@ func (r *responseTime) UnmarshalJSON(data []byte) error {
 		return errInvalidTimeUnit
 	}
 
-	*r = responseTime(d)
+	*r = responseDuration(d)
 	return err
 }
 
