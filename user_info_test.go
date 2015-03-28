@@ -34,9 +34,10 @@ func TestClientUserInfoCompactOK(t *testing.T) {
 			t.Fatalf("unexpected compact query value: %q != %q", c, "true")
 		}
 
-		// In the future, we may return compact canned user data here.  For now,
-		// JSON empty object is enough to get test coverage.
-		w.Write([]byte("{}"))
+		// In the future, we may return compact canned user data here.
+		// For now, write a mostly empty JSON object is enough to get
+		// test coverage.
+		w.Write([]byte(`{"response":{"user":{"id":1}}}`))
 	})
 	defer done()
 

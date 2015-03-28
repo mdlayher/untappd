@@ -14,14 +14,19 @@ var (
 )
 
 // User represents an Untappd user.
-//
-// BUG(mdlayher): write out fields to access more user information.
 type User struct {
-	UID       int64  `json:"uid"`
-	ID        int64  `json:"id"`
-	UserName  string `json:"user_name"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	UID        int64
+	ID         int64
+	UserName   string
+	FirstName  string
+	LastName   string
+	Avatar     url.URL
+	CoverPhoto url.URL
+	Location   string
+	URL        url.URL
+	Bio        string
+	Supporter  bool
+	UntappdURL url.URL
 }
 
 // UserService is a "service" which allows access to API methods involving users.
@@ -39,10 +44,10 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 		q.Set("compact", "true")
 	}
 
-	// Temporary struct to unmarshal user JSON
+	// Temporary struct to unmarshal raw user JSON
 	var v struct {
 		Response struct {
-			User *User `json:"user"`
+			User *rawUser `json:"user"`
 		} `json:"response"`
 	}
 
@@ -53,7 +58,7 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 	}
 
 	// Return results
-	return v.Response.User, res, nil
+	return v.Response.User.export(), res, nil
 }
 
 // Friends queries for information about a User's friends.  The username
@@ -92,7 +97,7 @@ func (u *UserService) FriendsOffsetLimit(username string, offset uint, limit uin
 			Count int `json:"count"`
 			Items []struct {
 				// BUG(mdlayher): parse more fields later
-				User *User `json:"user"`
+				User *rawUser `json:"user"`
 			} `json:"items"`
 		} `json:"response"`
 	}
@@ -106,7 +111,7 @@ func (u *UserService) FriendsOffsetLimit(username string, offset uint, limit uin
 	// Build result slice from struct
 	users := make([]*User, v.Response.Count)
 	for i := range v.Response.Items {
-		users[i] = v.Response.Items[i].User
+		users[i] = v.Response.Items[i].User.export()
 	}
 
 	// Return results
@@ -161,4 +166,48 @@ func (u *UserService) BadgesOffset(username string, offset uint) ([]*Badge, *htt
 
 	// Return results
 	return v.Response.Items, res, nil
+}
+
+// rawUser is the raw JSON representation of an Untappd user.  Its data is
+// unmarshaled from JSON and then exported to a User struct.
+type rawUser struct {
+	UID        int64        `json:"uid"`
+	ID         int64        `json:"id"`
+	UserName   string       `json:"user_name"`
+	FirstName  string       `json:"first_name"`
+	LastName   string       `json:"last_name"`
+	Avatar     responseURL  `json:"user_avatar"`
+	AvatarHD   responseURL  `json:"user_avatar_hd"`
+	CoverPhoto responseURL  `json:"user_cover_photo"`
+	Location   string       `json:"location"`
+	URL        responseURL  `json:"url"`
+	Bio        string       `json:"bio"`
+	Supporter  responseBool `json:"is_supporter"`
+	UntappdURL responseURL  `json:"untappd_url"`
+}
+
+// export creates an exported User from a rawUser struct, allowing for more
+// useful structures to be created for client consumption.
+func (r *rawUser) export() *User {
+	u := &User{
+		UID:        r.UID,
+		ID:         r.ID,
+		UserName:   r.UserName,
+		FirstName:  r.FirstName,
+		LastName:   r.LastName,
+		Avatar:     url.URL(r.Avatar),
+		CoverPhoto: url.URL(r.CoverPhoto),
+		Location:   r.Location,
+		URL:        url.URL(r.URL),
+		Bio:        r.Bio,
+		Supporter:  bool(r.Supporter),
+		UntappdURL: url.URL(r.UntappdURL),
+	}
+
+	// If high resolution avatar is available, use it instead
+	if a := url.URL(r.AvatarHD); a.String() != "" {
+		u.Avatar = a
+	}
+
+	return u
 }
