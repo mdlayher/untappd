@@ -329,14 +329,14 @@ func assertInvalidUserErr(t *testing.T, err error) {
 		t.Fatal("error is not of type *Error")
 	}
 
-	if c := uErr.Code; c != http.StatusNotFound {
+	if c := uErr.Code; c != http.StatusInternalServerError {
 		t.Fatalf("unexpected error code: %d != %d", c, http.StatusNotFound)
 	}
-	detail := "Invalid user."
+	detail := "There is no user with that username."
 	if d := uErr.Detail; d != detail {
 		t.Fatalf("unexpected error detail: %q != %q", d, detail)
 	}
-	eType := "invalid_user"
+	eType := "invalid_auth"
 	if e := uErr.Type; e != eType {
 		t.Fatalf("unexpected error type: %q != %q", e, eType)
 	}
@@ -357,4 +357,4 @@ var apiErrJSON = []byte(`{
 }`)
 
 // invalidUserErrJSON is canned JSON used to test for invalid user handling
-var invalidUserErrJSON = []byte(`{"meta":{"code":404,"error_detail":"Invalid user.","error_type":"invalid_user","response_time":{"time":0,"measure":"seconds"}}}`)
+var invalidUserErrJSON = []byte(`{"meta":{"code":500,"error_detail":"There is no user with that username.","error_type":"invalid_auth","response_time":{"time":0,"measure":"seconds"}}}`)
