@@ -27,6 +27,19 @@ type User struct {
 	Bio        string
 	Supporter  bool
 	UntappdURL url.URL
+	Stats      UserStats
+}
+
+// UserStats is a struct which contains various statistics regarding an Untappd
+// user.
+type UserStats struct {
+	TotalBadges       int64 `json:"total_badges"`
+	TotalFriends      int64 `json:"total_friends"`
+	TotalCheckins     int64 `json:"total_checkins"`
+	TotalBeers        int64 `json:"total_beers"`
+	TotalCreatedBeers int64 `json:"total_created_beers"`
+	TotalFollowings   int64 `json:"total_followings"`
+	TotalPhotos       int64 `json:"total_photos"`
 }
 
 // UserService is a "service" which allows access to API methods involving users.
@@ -184,6 +197,7 @@ type rawUser struct {
 	Bio        string       `json:"bio"`
 	Supporter  responseBool `json:"is_supporter"`
 	UntappdURL responseURL  `json:"untappd_url"`
+	Stats      UserStats    `json:"stats"`
 }
 
 // export creates an exported User from a rawUser struct, allowing for more
@@ -202,6 +216,7 @@ func (r *rawUser) export() *User {
 		Bio:        r.Bio,
 		Supporter:  bool(r.Supporter),
 		UntappdURL: url.URL(r.UntappdURL),
+		Stats:      r.Stats,
 	}
 
 	// If high resolution avatar is available, use it instead
