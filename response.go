@@ -51,6 +51,27 @@ func (r *responseDuration) UnmarshalJSON(data []byte) error {
 	return err
 }
 
+// responseTime implements json.Unmarshaler, so that timestamp responses
+// in the Untappd APIv4 can be decoded directly into Go time.Time structs.
+type responseTime time.Time
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (r *responseTime) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	// Parse a Go time.Time from string
+	t, err := time.Parse(time.RFC1123Z, v)
+	if err != nil {
+		return err
+	}
+
+	*r = responseTime(t)
+	return nil
+}
+
 // responseURL implements json.Unmarshaler, so that URL string responses
 // in the Untappd APIv4 can be decoded directly into Go *url.URL structs.
 type responseURL url.URL

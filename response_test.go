@@ -104,6 +104,74 @@ func Test_responseDurationUnmarshalJSON(t *testing.T) {
 	}
 }
 
+// Test_responseTimeUnmarshalJSON verifies that responseTime.UnmarshalJSON
+// provides proper time.Time for a variety of responseTime JSON values
+// from the Untappd APIv4.
+func Test_responseTimeUnmarshalJSON(t *testing.T) {
+	mst, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var tests = []struct {
+		description string
+		body        []byte
+		result      time.Time
+		err         error
+	}{
+		{
+			description: "default format",
+			body:        []byte(`"` + time.RFC1123Z + `"`),
+			result:      time.Date(2006, time.January, 2, 15, 4, 5, 0, mst),
+		},
+		{
+			description: "bad time",
+			body:        []byte(`"01-01-2001"`),
+			err:         errors.New(`parsing time "01-01-2001" as "Mon, 02 Jan 2006 15:04:05 -0700": cannot parse "01-01-2001" as "Mon"`),
+		},
+		{
+			description: "bad JSON",
+			body:        []byte(`}`),
+			err:         errBadJSON,
+		},
+	}
+
+	for _, tt := range tests {
+		r := new(responseTime)
+		err := r.UnmarshalJSON(tt.body)
+		if tt.err == nil && err != nil {
+			t.Fatal(err)
+		}
+		if tt.err != nil && err.Error() != tt.err.Error() {
+			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
+		}
+
+		ry, rm, rd := time.Time(*r).Date()
+		ty, tm, td := tt.result.Date()
+		if ry != ty {
+			t.Fatalf("unexpected year for test %q: %d != %d", tt.description, ry, ty)
+		}
+		if rm != tm {
+			t.Fatalf("unexpected month for test %q: %d != %d", tt.description, rm, tm)
+		}
+		if rd != td {
+			t.Fatalf("unexpected day for test %q: %d != %d", tt.description, rd, td)
+		}
+
+		rh, rmi, rs := time.Time(*r).Clock()
+		th, tmi, ts := tt.result.Clock()
+		if rh != th {
+			t.Fatalf("unexpected hour time for test %q: %d != %d", tt.description, rh, th)
+		}
+		if rmi != tmi {
+			t.Fatalf("unexpected minute time for test %q: %d != %d", tt.description, rmi, tmi)
+		}
+		if rs != ts {
+			t.Fatalf("unexpected second time for test %q: %d != %d", tt.description, rs, ts)
+		}
+	}
+}
+
 // Test_responseURLUnmarshalJSON verifies that responseURL.UnmarshalJSON
 // provides proper url.URL value for a variety of responseURL JSON values
 // from the Untappd APIv4.
