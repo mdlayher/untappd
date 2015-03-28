@@ -47,7 +47,7 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 	// Temporary struct to unmarshal raw user JSON
 	var v struct {
 		Response struct {
-			User *rawUser `json:"user"`
+			User rawUser `json:"user"`
 		} `json:"response"`
 	}
 
