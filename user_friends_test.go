@@ -61,7 +61,7 @@ func TestClientUserFriendsOffsetLimitBadUser(t *testing.T) {
 // TestClientUserFriendsOffsetLimitOK verifies that Client.User.FriendsOffsetLimit
 // returns a valid friends list, when used with correct parameters.
 func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
-	var offset uint = 0
+	var offset uint
 	sOffset := strconv.Itoa(int(offset))
 
 	var limit uint = 25
@@ -108,7 +108,7 @@ func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 			t.Fatalf("unexpected friend UID: %d != %d", friends[i].UID, expected[i].UID)
 		}
 		if friends[i].UserName != expected[i].UserName {
-			t.Fatalf("unexpected friend UserName: %d != %d", friends[i].UserName, expected[i].UserName)
+			t.Fatalf("unexpected friend UserName: %q != %q", friends[i].UserName, expected[i].UserName)
 		}
 	}
 }

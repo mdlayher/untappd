@@ -46,7 +46,7 @@ func TestClientUserBadgesOffsetBadUser(t *testing.T) {
 // TestClientUserBadgesOffsetOK verifies that Client.User.BadgesOffset
 // returns a valid badges list, when used with correct parameters.
 func TestClientUserBadgesOffsetOK(t *testing.T) {
-	var offset uint = 0
+	var offset uint
 	sOffset := strconv.Itoa(int(offset))
 
 	username := "mdlayher"
@@ -87,7 +87,7 @@ func TestClientUserBadgesOffsetOK(t *testing.T) {
 			t.Fatalf("unexpected badge ID: %d != %d", badges[i].ID, expected[i].ID)
 		}
 		if badges[i].Name != expected[i].Name {
-			t.Fatalf("unexpected badge Name: %d != %d", badges[i].Name, expected[i].Name)
+			t.Fatalf("unexpected badge Name: %q != %q", badges[i].Name, expected[i].Name)
 		}
 	}
 }
