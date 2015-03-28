@@ -11,20 +11,20 @@ import (
 // If available, a beer's brewery information can be accessed via the Brewery
 // member.
 type Beer struct {
-	ID             int64
-	Name           string
-	Label          url.URL
-	ABV            float64
-	IBU            int
-	Slug           string
-	Style          string
-	Description    string
-	Created        time.Time
-	WishList       bool
-	OverallRating  float64
-	UserRating     float64
-	FirstCheckin   time.Time
-	FirstCheckinID int64
+	ID            int64
+	Name          string
+	Label         url.URL
+	ABV           float64
+	IBU           int
+	Slug          string
+	Style         string
+	Description   string
+	Created       time.Time
+	WishList      bool
+	OverallRating float64
+	UserRating    float64
+	FirstHad      time.Time
+	Count         int
 
 	Brewery *Brewery
 }
