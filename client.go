@@ -22,7 +22,7 @@ const (
 	// jsonContentType is the content type for JSON data
 	jsonContentType = "application/json"
 
-	// untappdUserAgent is the user agent this package will rpoert to
+	// untappdUserAgent is the default user agent this package will report to
 	// the Untappd APIv4.
 	untappdUserAgent = "github.com/mdlayher/untappd"
 )
@@ -39,13 +39,13 @@ var (
 // Client is a HTTP client for the Untappd APIv4.  It enables access to various
 // methods of the Untappd APIv4.
 type Client struct {
+	UserAgent string
+
 	client *http.Client
 	url    *url.URL
 
 	clientID     string
 	clientSecret string
-
-	userAgent string
 
 	// Methods involving a User
 	User interface {
@@ -83,6 +83,8 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 
 	// Set up basic client
 	c := &Client{
+		UserAgent: untappdUserAgent,
+
 		client: client,
 		url: &url.URL{
 			Scheme: "https",
@@ -92,8 +94,6 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 
 		clientID:     clientID,
 		clientSecret: clientSecret,
-
-		userAgent: untappdUserAgent,
 	}
 
 	// Add "services" which allow access to various API methods
@@ -158,7 +158,7 @@ func (c *Client) request(method string, endpoint string, query url.Values, v int
 	req.Header.Add("Content-Type", jsonContentType)
 
 	// Identify the client
-	req.Header.Add("User-Agent", c.userAgent)
+	req.Header.Add("User-Agent", c.UserAgent)
 
 	// Invoke request using underlying HTTP client
 	res, err := c.client.Do(req)
