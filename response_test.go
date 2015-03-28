@@ -134,6 +134,13 @@ func Test_responseURLUnmarshalJSON(t *testing.T) {
 			body:        []byte(`"http://foo.com:80/bar"`),
 			result:      url.URL{Scheme: "http", Host: "foo.com:80", Path: "/bar"},
 		},
+		// Test data courtesy of Bryan Liles, thanks
+		// https://github.com/bryanl
+		{
+			description: "bad URL",
+			body:        []byte(`"http://www.%a0.com/foo"`),
+			err:         errors.New("parse http://www.%a0.com/foo: hexadecimal escape in host"),
+		},
 		{
 			description: "bad JSON",
 			body:        []byte(`}`),

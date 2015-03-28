@@ -10,13 +10,13 @@ import (
 )
 
 var (
+	// errInvalidBool is returned when the Untappd API returns a
+	// non 0 or 1 integer for a boolean value.
+	errInvalidBool = errors.New("invalid boolean value")
+
 	// errInvalidTimeUnit is returned when the Untappd API returns an
 	// unrecognized time unit.
 	errInvalidTimeUnit = errors.New("invalid time unit")
-
-	// errInvalidTimeUnit is returned when the Untappd API returns a
-	// non 0 or 1 integer for a boolean value.
-	errInvalidBool = errors.New("invalid boolean value")
 )
 
 // responseTime implements json.Unmarshaler, so that duration responses
@@ -71,7 +71,7 @@ func (r *responseURL) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// responseURL implements json.Unmarshaler, so that integer 0 or 1 responses
+// responseBool implements json.Unmarshaler, so that integer 0 or 1 responses
 // in the Untappd APIv4 can be decoded directly into Go boolean values.
 type responseBool bool
 
