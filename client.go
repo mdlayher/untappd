@@ -27,6 +27,34 @@ const (
 	untappdUserAgent = "github.com/mdlayher/untappd"
 )
 
+// Sort is a sorting method accepted by the Untappd APIv4.
+// A set of Sort constants are provided for ease of use.
+type Sort string
+
+// Constants that define various methods that the Untappd APIv4 can use to
+// sort Beer results.
+const (
+	// SortDate sorts a list of beers by most recent date checked in.
+	SortDate = "date"
+
+	// SortCheckin sorts a list of beers by highest number of checkins.
+	SortCheckin = "checkin"
+
+	// SortHighestRated sorts a list of beers by highest rated overall on Untappd.
+	SortHighestRated = "highest_rated"
+
+	// SortLowestRated sorts a list of beers by lowest rated overall on Untappd.
+	SortLowestRated = "lowest_rated"
+
+	// SortUserHighestRated sorts a list of beers by highest rated by this user
+	// on Untappd.
+	SortUserHighestRated = "highest_rated_you"
+
+	// SortUserLowestRated sorts a list of beers by lowest rated by this user
+	// on Untappd.
+	SortUserLowestRated = "lowest_rated_you"
+)
+
 var (
 	// ErrNoClientID is returned when an empty Client ID is passed to NewClient.
 	ErrNoClientID = errors.New("no client ID")
@@ -59,6 +87,10 @@ type Client struct {
 		// https://untappd.com/api/docs#userbadges
 		Badges(username string) ([]*Badge, *http.Response, error)
 		BadgesOffset(username string, offset uint) ([]*Badge, *http.Response, error)
+
+		// https://untappd.com/api/docs#userbeers
+		Beers(username string) ([]*Beer, *http.Response, error)
+		BeersOffsetLimitSort(username string, offset uint, limit uint, sort Sort) ([]*Beer, *http.Response, error)
 	}
 }
 
