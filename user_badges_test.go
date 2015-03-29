@@ -46,7 +46,7 @@ func TestClientUserBadgesOffsetBadUser(t *testing.T) {
 // returns a valid badges list, when used with correct parameters.
 func TestClientUserBadgesOffsetOK(t *testing.T) {
 	var offset int
-	sOffset := strconv.Itoa(int(offset))
+	sOffset := strconv.Itoa(offset)
 
 	username := "mdlayher"
 	c, done := userBadgesTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {

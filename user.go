@@ -91,8 +91,8 @@ func (u *UserService) Friends(username string) ([]*User, *http.Response, error) 
 // 25 friends is the maximum number of friends which may be returned by one call.
 func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int) ([]*User, *http.Response, error) {
 	q := url.Values{
-		"offset": []string{strconv.Itoa(int(offset))},
-		"limit":  []string{strconv.Itoa(int(limit))},
+		"offset": []string{strconv.Itoa(offset)},
+		"limit":  []string{strconv.Itoa(limit)},
 	}
 
 	// Temporary struct to unmarshal friends JSON
@@ -150,7 +150,7 @@ func (u *UserService) Badges(username string) ([]*Badge, *http.Response, error) 
 // 50 badges is the maximum number of badges which may be returned by one call.
 func (u *UserService) BadgesOffset(username string, offset int) ([]*Badge, *http.Response, error) {
 	q := url.Values{
-		"offset": []string{strconv.Itoa(int(offset))},
+		"offset": []string{strconv.Itoa(offset)},
 	}
 
 	// Temporary struct to unmarshal badges JSON
@@ -191,8 +191,8 @@ func (u *UserService) Beers(username string) ([]*Beer, *http.Response, error) {
 // 50 beers is the maximum number of beers which may be returned by one call.
 func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error) {
 	q := url.Values{
-		"offset": []string{strconv.Itoa(int(offset))},
-		"limit":  []string{strconv.Itoa(int(limit))},
+		"offset": []string{strconv.Itoa(offset)},
+		"limit":  []string{strconv.Itoa(limit)},
 		"sort":   []string{string(sort)},
 	}
 

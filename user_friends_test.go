@@ -50,10 +50,10 @@ func TestClientUserFriendsOffsetLimitBadUser(t *testing.T) {
 // returns a valid friends list, when used with correct parameters.
 func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 	var offset int
-	sOffset := strconv.Itoa(int(offset))
+	sOffset := strconv.Itoa(offset)
 
 	var limit int = 25
-	sLimit := strconv.Itoa(int(limit))
+	sLimit := strconv.Itoa(limit)
 
 	username := "mdlayher"
 	c, done := userFriendsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
