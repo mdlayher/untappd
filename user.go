@@ -9,8 +9,8 @@ import (
 
 // User represents an Untappd user.
 type User struct {
-	UID        int64
-	ID         int64
+	UID        int
+	ID         int
 	UserName   string
 	FirstName  string
 	LastName   string
@@ -27,13 +27,13 @@ type User struct {
 // UserStats is a struct which contains various statistics regarding an Untappd
 // user.
 type UserStats struct {
-	TotalBadges       int64 `json:"total_badges"`
-	TotalFriends      int64 `json:"total_friends"`
-	TotalCheckins     int64 `json:"total_checkins"`
-	TotalBeers        int64 `json:"total_beers"`
-	TotalCreatedBeers int64 `json:"total_created_beers"`
-	TotalFollowings   int64 `json:"total_followings"`
-	TotalPhotos       int64 `json:"total_photos"`
+	TotalBadges       int `json:"total_badges"`
+	TotalFriends      int `json:"total_friends"`
+	TotalCheckins     int `json:"total_checkins"`
+	TotalBeers        int `json:"total_beers"`
+	TotalCreatedBeers int `json:"total_created_beers"`
+	TotalFollowings   int `json:"total_followings"`
+	TotalPhotos       int `json:"total_photos"`
 }
 
 // UserService is a "service" which allows access to API methods involving users.
@@ -125,8 +125,8 @@ func (u *UserService) FriendsOffsetLimit(username string, offset uint, limit uin
 //
 // BUG(mdlayher): write out fields to access more badge information.
 type Badge struct {
-	ID          int64  `json:"badge_id"`
-	CheckinID   int64  `json:"checkin_id"`
+	ID          int    `json:"badge_id"`
+	CheckinID   int    `json:"checkin_id"`
 	Name        string `json:"badge_name"`
 	Description string `json:"badge_description"`
 }
@@ -241,8 +241,8 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset uint, limit u
 // rawUser is the raw JSON representation of an Untappd user.  Its data is
 // unmarshaled from JSON and then exported to a User struct.
 type rawUser struct {
-	UID        int64        `json:"uid"`
-	ID         int64        `json:"id"`
+	UID        int          `json:"uid"`
+	ID         int          `json:"id"`
 	UserName   string       `json:"user_name"`
 	FirstName  string       `json:"first_name"`
 	LastName   string       `json:"last_name"`

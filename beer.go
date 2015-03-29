@@ -11,7 +11,7 @@ import (
 // If available, a beer's brewery information can be accessed via the Brewery
 // member.
 type Beer struct {
-	ID            int64
+	ID            int
 	Name          string
 	Label         url.URL
 	ABV           float64
@@ -32,7 +32,7 @@ type Beer struct {
 // rawBeer is the raw JSON representation of an Untappd beer.  Its data is
 // unmarshaled from JSON and then exported to a Beer struct.
 type rawBeer struct {
-	ID            int64        `json:"bid"`
+	ID            int          `json:"bid"`
 	Name          string       `json:"beer_name"`
 	Label         responseURL  `json:"beer_label"`
 	ABV           float64      `json:"beer_abv"`
@@ -66,7 +66,7 @@ func (r *rawBeer) export() *Beer {
 // Brewery represents an Untappd brewery, and contains information about a
 // brewery's name, location, logo, and various other metadata.
 type Brewery struct {
-	ID       int64
+	ID       int
 	Name     string
 	Slug     string
 	Label    url.URL
@@ -87,7 +87,7 @@ type BreweryLocation struct {
 // rawBrewery is the raw JSON representation of an Untappd brewery.  Its data is
 // unmarshaled from JSON and then exported to a Brewery struct.
 type rawBrewery struct {
-	ID       int64           `json:"brewery_id"`
+	ID       int             `json:"brewery_id"`
 	Name     string          `json:"brewery_name"`
 	Slug     string          `json:"brewery_slug"`
 	Label    responseURL     `json:"brewery_label"`
