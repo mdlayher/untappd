@@ -16,7 +16,6 @@ func TestClientUserInfoBadUser(t *testing.T) {
 			t.Fatalf("unexpected URL path: %q != %q", p, path)
 		}
 
-		// TODO(mdlayher): determine the actual error code and type for unknown user
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(invalidUserErrJSON)
 	})

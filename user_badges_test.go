@@ -33,7 +33,6 @@ func TestClientUserBadgesOK(t *testing.T) {
 // returns an error when an invalid user is queried.
 func TestClientUserBadgesOffsetBadUser(t *testing.T) {
 	c, done := userBadgesTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		// TODO(mdlayher): determine the actual error code and type for unknown user
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(invalidUserErrJSON)
 	})

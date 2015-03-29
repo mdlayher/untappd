@@ -37,7 +37,6 @@ func TestClientUserFriendsOK(t *testing.T) {
 // returns an error when an invalid user is queried.
 func TestClientUserFriendsOffsetLimitBadUser(t *testing.T) {
 	c, done := userFriendsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		// TODO(mdlayher): determine the actual error code and type for unknown user
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(invalidUserErrJSON)
 	})
