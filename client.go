@@ -35,24 +35,24 @@ type Sort string
 // sort Beer results.
 const (
 	// SortDate sorts a list of beers by most recent date checked in.
-	SortDate = "date"
+	SortDate Sort = "date"
 
 	// SortCheckin sorts a list of beers by highest number of checkins.
-	SortCheckin = "checkin"
+	SortCheckin Sort = "checkin"
 
 	// SortHighestRated sorts a list of beers by highest rated overall on Untappd.
-	SortHighestRated = "highest_rated"
+	SortHighestRated Sort = "highest_rated"
 
 	// SortLowestRated sorts a list of beers by lowest rated overall on Untappd.
-	SortLowestRated = "lowest_rated"
+	SortLowestRated Sort = "lowest_rated"
 
 	// SortUserHighestRated sorts a list of beers by highest rated by this user
 	// on Untappd.
-	SortUserHighestRated = "highest_rated_you"
+	SortUserHighestRated Sort = "highest_rated_you"
 
 	// SortUserLowestRated sorts a list of beers by lowest rated by this user
 	// on Untappd.
-	SortUserLowestRated = "lowest_rated_you"
+	SortUserLowestRated Sort = "lowest_rated_you"
 )
 
 var (
