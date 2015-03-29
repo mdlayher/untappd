@@ -54,10 +54,10 @@ func TestClientUserBeersOffsetLimitBadUser(t *testing.T) {
 // TestClientUserBeersOffsetLimitOK verifies that Client.User.BeersOffsetLimit
 // returns a valid beers list, when used with correct parameters.
 func TestClientUserBeersOffsetLimitOK(t *testing.T) {
-	var offset uint
+	var offset int
 	sOffset := strconv.Itoa(int(offset))
 
-	var limit uint = 25
+	var limit int = 25
 	sLimit := strconv.Itoa(int(limit))
 
 	var sort Sort = SortDate

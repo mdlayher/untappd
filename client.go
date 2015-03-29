@@ -82,15 +82,15 @@ type Client struct {
 
 		// https://untappd.com/api/docs#userfriends
 		Friends(username string) ([]*User, *http.Response, error)
-		FriendsOffsetLimit(username string, offset uint, limit uint) ([]*User, *http.Response, error)
+		FriendsOffsetLimit(username string, offset int, limit int) ([]*User, *http.Response, error)
 
 		// https://untappd.com/api/docs#userbadges
 		Badges(username string) ([]*Badge, *http.Response, error)
-		BadgesOffset(username string, offset uint) ([]*Badge, *http.Response, error)
+		BadgesOffset(username string, offset int) ([]*Badge, *http.Response, error)
 
 		// https://untappd.com/api/docs#userbeers
 		Beers(username string) ([]*Beer, *http.Response, error)
-		BeersOffsetLimitSort(username string, offset uint, limit uint, sort Sort) ([]*Beer, *http.Response, error)
+		BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
 	}
 }
 

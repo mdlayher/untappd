@@ -46,7 +46,7 @@ func TestClientUserBadgesOffsetBadUser(t *testing.T) {
 // TestClientUserBadgesOffsetOK verifies that Client.User.BadgesOffset
 // returns a valid badges list, when used with correct parameters.
 func TestClientUserBadgesOffsetOK(t *testing.T) {
-	var offset uint
+	var offset int
 	sOffset := strconv.Itoa(int(offset))
 
 	username := "mdlayher"
