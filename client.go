@@ -53,6 +53,12 @@ const (
 	// SortUserLowestRated sorts a list of beers by lowest rated by this user
 	// on Untappd.
 	SortUserLowestRated Sort = "lowest_rated_you"
+
+	// SortHighestABV sorts a list of beers by highest alcohol by volume on Untappd.
+	SortHighestABV = "highest_abv"
+
+	// SortLowestABV sorts a list of beers by lowest alcohol by volume on Untappd.
+	SortLowestABV = "lowest_abv"
 )
 
 var (
@@ -87,6 +93,10 @@ type Client struct {
 		// https://untappd.com/api/docs#userbadges
 		Badges(username string) ([]*Badge, *http.Response, error)
 		BadgesOffset(username string, offset int) ([]*Badge, *http.Response, error)
+
+		// https://untappd.com/api/docs#userwishlist
+		WishList(username string) ([]*Beer, *http.Response, error)
+		WishListOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
 
 		// https://untappd.com/api/docs#userbeers
 		Beers(username string) ([]*Beer, *http.Response, error)

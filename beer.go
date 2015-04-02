@@ -24,6 +24,7 @@ type Beer struct {
 	OverallRating float64
 	UserRating    float64
 	FirstHad      time.Time
+	WishListed    time.Time
 	Count         int
 
 	Brewery *Brewery
