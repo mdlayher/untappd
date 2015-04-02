@@ -1,6 +1,7 @@
 package untappd
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -111,6 +112,36 @@ func (r *responseBool) UnmarshalJSON(data []byte) error {
 	default:
 		return errInvalidBool
 	}
+
+	return nil
+}
+
+// responseBadgeLevels implements json.Unmarshaler, so that an empty array on
+// a badge with no levels can be appropriately handled.
+type responseBadgeLevels struct {
+	Count int
+	Items []*rawBadge
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (r *responseBadgeLevels) UnmarshalJSON(data []byte) error {
+	// If no levels exist for a badge, the API returns an empty array instead
+	// of a nil or empty object.  This method works around that.
+	if bytes.Equal(data, []byte("[]")) {
+		return nil
+	}
+
+	var v struct {
+		Count int         `json:"count"`
+		Items []*rawBadge `json:"items"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	r.Count = v.Count
+	r.Items = v.Items
 
 	return nil
 }

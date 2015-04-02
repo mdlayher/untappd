@@ -3,6 +3,7 @@ package untappd
 import (
 	"errors"
 	"net/url"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -276,6 +277,79 @@ func Test_responseBoolUnmarshalJSON(t *testing.T) {
 
 		if *r != responseBool(tt.result) {
 			t.Fatalf("unexpected bool for test %q: %v != %v", tt.description, r, tt.result)
+		}
+	}
+}
+
+// Test_responseBadgeLevelsUnmarshalJSON verifies that responseBadgeLevels.UnmarshalJSON
+// provides proper badge count and items values for a variety of responseBadgeLevels
+// JSON values from the Untappd APIv4.
+func Test_responseBadgeLevelsUnmarshalJSON(t *testing.T) {
+	var tests = []struct {
+		description string
+		body        []byte
+		result      responseBadgeLevels
+		err         error
+	}{
+		{
+			description: "no badge levels (special API case)",
+			body:        []byte(`[]`),
+			result:      responseBadgeLevels{},
+		},
+		{
+			description: "no badge levels (possibly non-existant case)",
+			body:        []byte(`{"count":0,"items":[]}`),
+			result: responseBadgeLevels{
+				Count: 0,
+				Items: []*rawBadge{},
+			},
+		},
+		{
+			description: "1 badge level",
+			body:        []byte(`{"count":1,"items":[{"badge_name":"Foo (Level 1)"}]}`),
+			result: responseBadgeLevels{
+				Count: 1,
+				Items: []*rawBadge{
+					&rawBadge{
+						Name: "Foo (Level 1)",
+					},
+				},
+			},
+		},
+		{
+			description: "2 badge levels",
+			body:        []byte(`{"count":2,"items":[{"badge_name":"Foo (Level 2)"},{"badge_name":"Foo (Level 1)"}]}`),
+			result: responseBadgeLevels{
+				Count: 2,
+				Items: []*rawBadge{
+					&rawBadge{
+						Name: "Foo (Level 2)",
+					},
+					&rawBadge{
+						Name: "Foo (Level 1)",
+					},
+				},
+			},
+		},
+		{
+			description: "bad JSON",
+			body:        []byte(`}`),
+			err:         errBadJSON,
+		},
+	}
+
+	for _, tt := range tests {
+		r := new(responseBadgeLevels)
+		err := r.UnmarshalJSON(tt.body)
+		if tt.err == nil && err != nil {
+			t.Fatal(err)
+		}
+		if tt.err != nil && err.Error() != tt.err.Error() {
+			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
+		}
+
+		if !reflect.DeepEqual(*r, responseBadgeLevels(tt.result)) {
+			t.Fatalf("unexpected responseBadgeLevels for test %q: %v != %v", tt.description, r, tt.result)
 		}
 	}
 }

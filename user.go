@@ -121,16 +121,6 @@ func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int)
 	return users, res, nil
 }
 
-// Badge represents an Untappd badge.
-//
-// BUG(mdlayher): write out fields to access more badge information.
-type Badge struct {
-	ID          int    `json:"badge_id"`
-	CheckinID   int    `json:"checkin_id"`
-	Name        string `json:"badge_name"`
-	Description string `json:"badge_description"`
-}
-
 // Badges queries for information about a User's badges.  The username
 // parameter specifies the User whose badges will be returned.
 //
@@ -156,8 +146,8 @@ func (u *UserService) BadgesOffset(username string, offset int) ([]*Badge, *http
 	// Temporary struct to unmarshal badges JSON
 	var v struct {
 		Response struct {
-			Count int      `json:"count"`
-			Items []*Badge `json:"items"`
+			Count int         `json:"count"`
+			Items []*rawBadge `json:"items"`
 		} `json:"response"`
 	}
 
@@ -167,8 +157,14 @@ func (u *UserService) BadgesOffset(username string, offset int) ([]*Badge, *http
 		return nil, res, err
 	}
 
+	// Build result slice from struct
+	badges := make([]*Badge, v.Response.Count)
+	for i := range v.Response.Items {
+		badges[i] = v.Response.Items[i].export()
+	}
+
 	// Return results
-	return v.Response.Items, res, nil
+	return badges, res, nil
 }
 
 // Beers queries for information about a User's checked-in beers.
