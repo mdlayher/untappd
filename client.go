@@ -117,6 +117,10 @@ type Client struct {
 	Brewery interface {
 		// https://untappd.com/api/docs#breweryinfo
 		Info(id int, compact bool) (*Brewery, *http.Response, error)
+
+		// https://untappd.com/api/docs#brewerysearch
+		Search(query string) ([]*Brewery, *http.Response, error)
+		SearchOffsetLimit(query string, offset int, limit int) ([]*Brewery, *http.Response, error)
 	}
 }
 
