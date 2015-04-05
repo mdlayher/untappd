@@ -107,6 +107,10 @@ type Client struct {
 	Beer interface {
 		// https://untappd.com/api/docs#beerinfo
 		Info(id int, compact bool) (*Beer, *http.Response, error)
+
+		// https://untappd.com/api/docs#beersearch
+		Search(query string) ([]*Beer, *http.Response, error)
+		SearchOffsetLimitSort(query string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
 	}
 
 	// Methods involving a Brewery
