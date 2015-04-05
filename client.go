@@ -108,6 +108,12 @@ type Client struct {
 		// https://untappd.com/api/docs#beerinfo
 		Info(id int, compact bool) (*Beer, *http.Response, error)
 	}
+
+	// Methods involving a Brewery
+	Brewery interface {
+		// https://untappd.com/api/docs#breweryinfo
+		Info(id int, compact bool) (*Brewery, *http.Response, error)
+	}
 }
 
 // NewClient creates a properly initialized instance of Client, using the input
@@ -147,6 +153,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 	// Add "services" which allow access to various API methods
 	c.User = &UserService{client: c}
 	c.Beer = &BeerService{client: c}
+	c.Brewery = &BreweryService{client: c}
 
 	return c, nil
 }
