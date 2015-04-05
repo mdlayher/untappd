@@ -12,7 +12,7 @@ type Brewery struct {
 	ID       int
 	Name     string
 	Slug     string
-	Label    url.URL
+	Logo     url.URL
 	Country  string
 	Active   bool
 	Location BreweryLocation
@@ -66,7 +66,7 @@ type rawBrewery struct {
 	ID       int             `json:"brewery_id"`
 	Name     string          `json:"brewery_name"`
 	Slug     string          `json:"brewery_slug"`
-	Label    responseURL     `json:"brewery_label"`
+	Logo     responseURL     `json:"brewery_label"`
 	Country  string          `json:"country_name"`
 	Active   responseBool    `json:"brewery_active"`
 	Location BreweryLocation `json:"location"`
@@ -79,7 +79,7 @@ func (r *rawBrewery) export() *Brewery {
 		ID:       r.ID,
 		Name:     r.Name,
 		Slug:     r.Slug,
-		Label:    url.URL(r.Label),
+		Logo:     url.URL(r.Logo),
 		Country:  r.Country,
 		Active:   bool(r.Active),
 		Location: r.Location,
