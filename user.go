@@ -100,7 +100,7 @@ func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int)
 		Response struct {
 			Count int `json:"count"`
 			Items []struct {
-				User *rawUser `json:"user"`
+				User rawUser `json:"user"`
 			} `json:"items"`
 		} `json:"response"`
 	}
