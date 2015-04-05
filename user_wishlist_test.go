@@ -57,10 +57,10 @@ func TestClientUserWishListOffsetLimitSortOK(t *testing.T) {
 	var offset int
 	sOffset := strconv.Itoa(offset)
 
-	var limit int = 25
+	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
-	var sort Sort = SortDate
+	var sort = SortDate
 
 	username := "mdlayher"
 	c, done := userWishListTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {

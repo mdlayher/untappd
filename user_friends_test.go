@@ -52,7 +52,7 @@ func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 	var offset int
 	sOffset := strconv.Itoa(offset)
 
-	var limit int = 25
+	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
 	username := "mdlayher"
