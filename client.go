@@ -102,6 +102,12 @@ type Client struct {
 		Beers(username string) ([]*Beer, *http.Response, error)
 		BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
 	}
+
+	// Methods involving a Beer
+	Beer interface {
+		// https://untappd.com/api/docs#beerinfo
+		Info(id int, compact bool) (*Beer, *http.Response, error)
+	}
 }
 
 // NewClient creates a properly initialized instance of Client, using the input
@@ -140,6 +146,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 
 	// Add "services" which allow access to various API methods
 	c.User = &UserService{client: c}
+	c.Beer = &BeerService{client: c}
 
 	return c, nil
 }

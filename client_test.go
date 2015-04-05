@@ -342,6 +342,31 @@ func assertInvalidUserErr(t *testing.T, err error) {
 	}
 }
 
+// assertInvalidBeerErr asserts that an input error was generated from the
+// invalidBeerErrJSON used in some tests.
+func assertInvalidBeerErr(t *testing.T, err error) {
+	if err == nil {
+		t.Fatal("error should have occurred, but error is nil")
+	}
+
+	uErr, ok := err.(*Error)
+	if !ok {
+		t.Fatal("error is not of type *Error")
+	}
+
+	if c := uErr.Code; c != http.StatusInternalServerError {
+		t.Fatalf("unexpected error code: %d != %d", c, http.StatusNotFound)
+	}
+	detail := "This Beer ID is invalid."
+	if d := uErr.Detail; d != detail {
+		t.Fatalf("unexpected error detail: %q != %q", d, detail)
+	}
+	eType := "invalid_param"
+	if e := uErr.Type; e != eType {
+		t.Fatalf("unexpected error type: %q != %q", e, eType)
+	}
+}
+
 // JSON taken from Untappd APIv4 documentation: https://untappd.com/api/docs
 var apiErrJSON = []byte(`{
   "meta": {
@@ -358,3 +383,6 @@ var apiErrJSON = []byte(`{
 
 // invalidUserErrJSON is canned JSON used to test for invalid user handling
 var invalidUserErrJSON = []byte(`{"meta":{"code":500,"error_detail":"There is no user with that username.","error_type":"invalid_auth","response_time":{"time":0,"measure":"seconds"}}}`)
+
+// invalidBeerErrJSON is canned JSON used to test for invalid beer handling
+var invalidBeerErrJSON = []byte(`{"meta":{"code":500,"error_detail":"This Beer ID is invalid.","error_type":"invalid_param","response_time":{"time":0,"measure":"seconds"}}}`)
