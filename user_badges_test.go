@@ -8,15 +8,19 @@ import (
 )
 
 // TestClientUserBadgesOK verifies that Client.User.Badges always sets the
-// appropriate default offset value.
+// appropriate default offset and limit values.
 func TestClientUserBadgesOK(t *testing.T) {
 	offset := "0"
+	limit := "50"
 
 	c, done := userBadgesTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 
 		if o := q.Get("offset"); o != offset {
 			t.Fatalf("unexpected offset parameter: %s != %s", o, offset)
+		}
+		if l := q.Get("limit"); l != limit {
+			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
 		}
 
 		// Empty JSON response since we already passed checks
@@ -29,24 +33,27 @@ func TestClientUserBadgesOK(t *testing.T) {
 	}
 }
 
-// TestClientUserBadgesOffsetBadUser verifies that Client.User.BadgesOffset
+// TestClientUserBadgesOffsetLimitBadUser verifies that Client.User.BadgesOffsetLimit
 // returns an error when an invalid user is queried.
-func TestClientUserBadgesOffsetBadUser(t *testing.T) {
+func TestClientUserBadgesOffsetLimitBadUser(t *testing.T) {
 	c, done := userBadgesTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(invalidUserErrJSON)
 	})
 	defer done()
 
-	_, _, err := c.User.BadgesOffset("foo", 50)
+	_, _, err := c.User.BadgesOffsetLimit("foo", 0, 50)
 	assertInvalidUserErr(t, err)
 }
 
-// TestClientUserBadgesOffsetOK verifies that Client.User.BadgesOffset
+// TestClientUserBadgesOffsetLimitOK verifies that Client.User.BadgesOffsetLimit
 // returns a valid badges list, when used with correct parameters.
-func TestClientUserBadgesOffsetOK(t *testing.T) {
+func TestClientUserBadgesOffsetLimitOK(t *testing.T) {
 	var offset int
 	sOffset := strconv.Itoa(offset)
+
+	var limit = 50
+	sLimit := strconv.Itoa(limit)
 
 	username := "mdlayher"
 	c, done := userBadgesTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
@@ -60,12 +67,15 @@ func TestClientUserBadgesOffsetOK(t *testing.T) {
 		if o := q.Get("offset"); o != sOffset {
 			t.Fatalf("unexpected offset parameter: %s != %s", o, sOffset)
 		}
+		if l := q.Get("limit"); l != sLimit {
+			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
+		}
 
 		w.Write(userBadgesJSON)
 	})
 	defer done()
 
-	badges, _, err := c.User.BadgesOffset(username, offset)
+	badges, _, err := c.User.BadgesOffsetLimit(username, offset, limit)
 	if err != nil {
 		t.Fatal(err)
 	}

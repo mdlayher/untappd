@@ -133,21 +133,22 @@ func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int)
 //
 // This method returns up to 50 of the User's most recently earned badges.
 // For more granular control, and to page through the badges list, use
-// BadgesOffset instead.
+// BadgesOffsetLimit instead.
 func (u *UserService) Badges(username string) ([]*Badge, *http.Response, error) {
 	// Use default parameters as specified by API
-	return u.BadgesOffset(username, 0)
+	return u.BadgesOffsetLimit(username, 0, 50)
 }
 
-// BadgesOffset queries for information about a User's badges, but also
-// accepts an offset parameter to enable paging through more than 50
+// BadgesOffsetLimit queries for information about a User's badges, but also
+// accepts offset and limit parameters to enable paging through more than 50
 // badges.  The username parameter specifies the User whose badges will be
 // returned.
 //
 // 50 badges is the maximum number of badges which may be returned by one call.
-func (u *UserService) BadgesOffset(username string, offset int) ([]*Badge, *http.Response, error) {
+func (u *UserService) BadgesOffsetLimit(username string, offset int, limit int) ([]*Badge, *http.Response, error) {
 	q := url.Values{
 		"offset": []string{strconv.Itoa(offset)},
+		"limit":  []string{strconv.Itoa(limit)},
 	}
 
 	// Temporary struct to unmarshal badges JSON

@@ -58,7 +58,7 @@ type Client struct {
 
 		// https://untappd.com/api/docs#userbadges
 		Badges(username string) ([]*Badge, *http.Response, error)
-		BadgesOffset(username string, offset int) ([]*Badge, *http.Response, error)
+		BadgesOffsetLimit(username string, offset int, limit int) ([]*Badge, *http.Response, error)
 
 		// https://untappd.com/api/docs#userwishlist
 		WishList(username string) ([]*Beer, *http.Response, error)
