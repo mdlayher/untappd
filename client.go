@@ -55,10 +55,10 @@ const (
 	SortUserLowestRated Sort = "lowest_rated_you"
 
 	// SortHighestABV sorts a list of beers by highest alcohol by volume on Untappd.
-	SortHighestABV = "highest_abv"
+	SortHighestABV Sort = "highest_abv"
 
 	// SortLowestABV sorts a list of beers by lowest alcohol by volume on Untappd.
-	SortLowestABV = "lowest_abv"
+	SortLowestABV Sort = "lowest_abv"
 )
 
 var (
