@@ -8,15 +8,23 @@ import (
 // Badge represents an Untappd badge, and contains information regarding its name,
 // description, when it was earned, and various media associated with the badge.
 type Badge struct {
+	// Metadata from Untappd.
 	ID          int
 	CheckinID   int
 	Name        string
 	Description string
 	Hint        string
 	Active      bool
-	Media       BadgeMedia
-	Earned      time.Time
-	Levels      []*Badge
+
+	// Links to images of the badge.
+	Media BadgeMedia
+
+	// If applicable, time when the specified user earned this badge.
+	Earned time.Time
+
+	// If applicable, badge levels which the specified user has obtained.
+	// If the slice has zero length, no levels exist for this badge.
+	Levels []*Badge
 }
 
 // BadgeMedia contains links to media regarding a Badge.  Included are links

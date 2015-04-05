@@ -7,21 +7,28 @@ import (
 	"time"
 )
 
-// User represents an Untappd user.
+// User represents an Untappd user, and contains information regarding a user's
+// username, first and last name, avatar, cover photo, and various other attributes.
 type User struct {
-	UID        int
-	ID         int
-	UserName   string
-	FirstName  string
-	LastName   string
+	// Metadata from Untappd.
+	UID       int
+	ID        int
+	UserName  string
+	FirstName string
+	LastName  string
+	Location  string
+	Bio       string
+	Supporter bool
+
+	// Links to the user's avatar, cover photo, custom URL, and Untappd profile.
 	Avatar     url.URL
 	CoverPhoto url.URL
-	Location   string
 	URL        url.URL
-	Bio        string
-	Supporter  bool
 	UntappdURL url.URL
-	Stats      UserStats
+
+	// Struct containing this user's total badges, friends, checkins,
+	// and other various totals.
+	Stats UserStats
 }
 
 // UserStats is a struct which contains various statistics regarding an Untappd

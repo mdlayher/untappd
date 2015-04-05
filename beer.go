@@ -11,22 +11,42 @@ import (
 // If available, a beer's brewery information can be accessed via the Brewery
 // member.
 type Beer struct {
-	ID            int
-	Name          string
-	Label         url.URL
-	ABV           float64
-	IBU           int
-	Slug          string
-	Style         string
-	Description   string
-	Created       time.Time
-	WishList      bool
-	OverallRating float64
-	UserRating    float64
-	FirstHad      time.Time
-	WishListed    time.Time
-	Count         int
+	// Metadata from Untappd.
+	ID          int
+	Name        string
+	Label       url.URL
+	ABV         float64
+	IBU         int
+	Slug        string
+	Style       string
+	Description string
 
+	// Time when this beer was added to Untappd.
+	Created time.Time
+
+	// Is this beer present in the specified user's wish list?
+	WishList bool
+
+	// Global Untappd rating for this beer.
+	OverallRating float64
+
+	// If applicable, the specified user's rating for this beer.
+	UserRating float64
+
+	// If applicable, time when the specified user first checked in
+	// this beer.
+	FirstHad time.Time
+
+	// If applicable, time when the specified user added this beer to
+	// their wish list.
+	WishListed time.Time
+
+	// If applicable, number of times the specified user has checked
+	// in this beer.
+	Count int
+
+	// If available, information regarding the brewery which created
+	// this beer.
 	Brewery *Brewery
 }
 
