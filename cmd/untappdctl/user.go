@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/codegangsta/cli"
@@ -10,26 +9,7 @@ import (
 
 // userCommand allows access to untappd.Client.User methods, such as user
 // information, checked in beers, friends, badges, and wish list.
-func userCommand() cli.Command {
-	// Frequently used flags for paging and sorting results, with their
-	// default Untappd API values
-	offsetFlag := cli.IntFlag{
-		Name:  "offset",
-		Value: 0,
-		Usage: "starting offset for API query results",
-	}
-	limitFlag := cli.IntFlag{
-		Name:  "limit",
-		Value: 25,
-		Usage: "maximum number of API query results",
-	}
-	sortFlag := cli.StringFlag{
-		Name:  "sort",
-		Value: string(untappd.SortDate),
-		Usage: fmt.Sprintf("sort type for API query results (options: %s)", untappd.Sorts()),
-	}
-
-	// Set up user command and subcommands
+func userCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.StringFlag) cli.Command {
 	return cli.Command{
 		Name:    "user",
 		Aliases: []string{"u"},
