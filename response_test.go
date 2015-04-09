@@ -177,6 +177,9 @@ func Test_responseTimeUnmarshalJSON(t *testing.T) {
 // provides proper url.URL value for a variety of responseURL JSON values
 // from the Untappd APIv4.
 func Test_responseURLUnmarshalJSON(t *testing.T) {
+	// Bad URL used to validate URL parsing
+	badURL := "http://www.%a0.com/foo"
+
 	var tests = []struct {
 		description string
 		body        []byte
@@ -207,8 +210,11 @@ func Test_responseURLUnmarshalJSON(t *testing.T) {
 		// https://github.com/bryanl
 		{
 			description: "bad URL",
-			body:        []byte(`"http://www.%a0.com/foo"`),
-			err:         errors.New("parse http://www.%a0.com/foo: hexadecimal escape in host"),
+			body:        []byte(`"` + badURL + `"`),
+			err: &url.Error{
+				Op:  "parse",
+				URL: badURL,
+			},
 		},
 		{
 			description: "bad JSON",
@@ -223,6 +229,18 @@ func Test_responseURLUnmarshalJSON(t *testing.T) {
 		if tt.err == nil && err != nil {
 			t.Fatal(err)
 		}
+
+		// Due to a change in Go tip's net/url library, we have to check
+		// for individual fields on URL parse error
+		uErr, ok := err.(*url.Error)
+		if tt.err != nil && err != nil && ok {
+			if uErr.Op != "parse" || uErr.URL != badURL {
+				t.Fatalf("unexpected URL parse error: %v", uErr)
+			}
+
+			continue
+		}
+
 		if tt.err != nil && err.Error() != tt.err.Error() {
 			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
 		}
