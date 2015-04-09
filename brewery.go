@@ -47,7 +47,6 @@ func (b *BreweryService) Info(id int, compact bool) (*Brewery, *http.Response, e
 		return nil, res, err
 	}
 
-	// Return results
 	return v.Response.Brewery.export(), res, nil
 }
 
@@ -96,7 +95,6 @@ func (b *BreweryService) SearchOffsetLimit(query string, offset int, limit int) 
 		breweries[i] = v.Response.Brewery.Items[i].Brewery.export()
 	}
 
-	// Return results
 	return breweries, res, nil
 }
 

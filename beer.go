@@ -67,20 +67,19 @@ func (b *BeerService) Info(id int, compact bool) (*Beer, *http.Response, error) 
 		q.Set("compact", "true")
 	}
 
-	// Temporary struct to unmarshal raw user JSON
+	// Temporary struct to unmarshal raw beer JSON
 	var v struct {
 		Response struct {
 			Beer rawBeer `json:"beer"`
 		} `json:"response"`
 	}
 
-	// Perform request for user information by username
+	// Perform request for beer information by ID
 	res, err := b.client.request("GET", "beer/info/"+strconv.Itoa(id), q, &v)
 	if err != nil {
 		return nil, res, err
 	}
 
-	// Return results
 	return v.Response.Beer.export(), res, nil
 }
 
@@ -142,7 +141,6 @@ func (b *BeerService) SearchOffsetLimitSort(query string, offset int, limit int,
 		beers[i].Brewery = v.Response.Beers.Items[i].Brewery.export()
 	}
 
-	// Return results
 	return beers, res, nil
 }
 

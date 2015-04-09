@@ -71,7 +71,6 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 		return nil, res, err
 	}
 
-	// Return results
 	return v.Response.User.export(), res, nil
 }
 
@@ -124,7 +123,6 @@ func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int)
 		users[i] = v.Response.Items[i].User.export()
 	}
 
-	// Return results
 	return users, res, nil
 }
 
@@ -171,7 +169,6 @@ func (u *UserService) BadgesOffsetLimit(username string, offset int, limit int) 
 		badges[i] = v.Response.Items[i].export()
 	}
 
-	// Return results
 	return badges, res, nil
 }
 
@@ -233,7 +230,6 @@ func (u *UserService) WishListOffsetLimitSort(username string, offset int, limit
 		beers[i].WishListed = time.Time(v.Response.Beers.Items[i].WishListed)
 	}
 
-	// Return results
 	return beers, res, nil
 }
 
@@ -300,7 +296,6 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit in
 		beers[i].Count = v.Response.Beers.Items[i].Count
 	}
 
-	// Return results
 	return beers, res, nil
 }
 
