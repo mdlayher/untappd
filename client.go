@@ -67,6 +67,9 @@ type Client struct {
 		// https://untappd.com/api/docs#userbeers
 		Beers(username string) ([]*Beer, *http.Response, error)
 		BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
+
+		// https://untappd.com/api/docs#useractivityfeed
+		Checkins(username string) ([]*Checkin, *http.Response, error)
 	}
 
 	// Methods involving a Beer
