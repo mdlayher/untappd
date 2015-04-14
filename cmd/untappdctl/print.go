@@ -71,6 +71,31 @@ func printBeers(beers []*untappd.Beer) {
 	}
 }
 
+// printCheckins turns a slice of *untappd.Checkin structs into a human-friendly
+// output format, and prints it to stdout.
+func printCheckins(checkins []*untappd.Checkin) {
+	tw := tabWriter()
+
+	// Print field header
+	fmt.Fprintln(tw, "ID\tName\tBrewery\tRating\tComment")
+
+	// Print out each checkin
+	for _, c := range checkins {
+		fmt.Fprintf(tw, "%d\t%s\t%s\t%0.1f\t%s\n",
+			c.ID,
+			c.Beer.Name,
+			c.Brewery.Name,
+			c.UserRating,
+			c.Comment,
+		)
+	}
+
+	// Flush buffered output
+	if err := tw.Flush(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // printUsers turns a slice of *untappd.User structs into a human-friendly
 // output format, and prints it to stdout.  The info parameter allows
 // extended information to be printed for user info.

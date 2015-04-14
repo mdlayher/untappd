@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math"
 
 	"github.com/codegangsta/cli"
 	"github.com/mdlayher/untappd"
@@ -17,6 +18,7 @@ func userCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.Str
 		Subcommands: []cli.Command{
 			userBadgesCommand(offsetFlag, limitFlag),
 			userBeersCommand(offsetFlag, limitFlag, sortFlag),
+			userCheckinsCommand(limitFlag),
 			userFriendsCommand(offsetFlag, limitFlag),
 			userInfoCommand(),
 			userWishListCommand(offsetFlag, limitFlag, sortFlag),
@@ -90,6 +92,50 @@ func userBeersCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cl
 
 			// Print out beers in human-readable format
 			printBeers(beers)
+		},
+	}
+}
+
+// userCheckinsCommand allows access to the untappd.Client.User.Checkins method, which
+// can query for information about a user's checked in beers, by username.
+func userCheckinsCommand(limitFlag cli.IntFlag) cli.Command {
+	return cli.Command{
+		Name:    "checkins",
+		Aliases: []string{"c"},
+		Usage:   "query for recent user checkins, by username",
+		Flags: []cli.Flag{
+			limitFlag,
+			cli.IntFlag{
+				Name:  "min_id",
+				Value: 0,
+				Usage: "minimum checkin ID for API query results",
+			},
+			cli.IntFlag{
+				Name:  "max_id",
+				Value: math.MaxInt32,
+				Usage: "maximum checkin ID for API query results",
+			},
+		},
+
+		Action: func(ctx *cli.Context) {
+			minID, maxID, limit := ctx.Int("min_id"), ctx.Int("max_id"), ctx.Int("limit")
+
+			// Query for user's checkins by username, e.g.
+			// "untappdctl user checkins mdlayher"
+			c := untappdClient(ctx)
+			checkins, res, err := c.User.CheckinsMinMaxIDLimit(
+				mustStringArg(ctx, "username"),
+				minID,
+				maxID,
+				limit,
+			)
+			printRateLimit(res)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Print out checkins in human-readable format
+			printCheckins(checkins)
 		},
 	}
 }
