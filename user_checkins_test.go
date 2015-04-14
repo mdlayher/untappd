@@ -1,6 +1,7 @@
 package untappd
 
 import (
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -8,13 +9,21 @@ import (
 )
 
 // TestClientUserCheckinsOK verifies that Client.User.Checkins always sets the
-// appropriate default limit value.
+// appropriate default minimum ID, maximum ID, and limit values.
 func TestClientUserCheckinsOK(t *testing.T) {
+	minID := "0"
+	maxID := strconv.Itoa(math.MaxInt32)
 	limit := "25"
 
 	c, done := userCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 
+		if i := q.Get("min_id"); i != minID {
+			t.Fatalf("unexpected min_id parameter: %s != %s", i, minID)
+		}
+		if i := q.Get("max_id"); i != maxID {
+			t.Fatalf("unexpected max_id parameter: %s != %s", i, maxID)
+		}
 		if l := q.Get("limit"); l != limit {
 			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
 		}
@@ -29,23 +38,29 @@ func TestClientUserCheckinsOK(t *testing.T) {
 	}
 }
 
-// TestClientUserCheckinsBadUser verifies that
-// Client.User.Checkins returns an error when an invalid user
+// TestClientUserCheckinsMinMaxIDLimitBadUser verifies that
+// Client.User.CheckinsMinMaxIDLimit returns an error when an invalid user
 // is queried.
-func TestClientUserCheckinsBadUser(t *testing.T) {
+func TestClientUserCheckinsMinMaxIDLimitBadUser(t *testing.T) {
 	c, done := userCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(invalidUserErrJSON)
 	})
 	defer done()
 
-	_, _, err := c.User.Checkins("foo")
+	_, _, err := c.User.CheckinsMinMaxIDLimit("foo", 0, math.MaxInt32, 25)
 	assertInvalidUserErr(t, err)
 }
 
-// TestClientUserCheckinsOK verifies that Client.User.Checkins
+// TestClientUserCheckinsMinMaxIDLimitOK verifies that Client.User.CheckinsMinMaxIDLimit
 // returns a valid checkins list, when used with correct parameters.
-func TestClientUserCheckinsOffsetLimitOK(t *testing.T) {
+func TestClientUserCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
+	var minID int
+	sMinID := strconv.Itoa(minID)
+
+	var maxID = math.MaxInt32
+	sMaxID := strconv.Itoa(maxID)
+
 	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
@@ -58,6 +73,12 @@ func TestClientUserCheckinsOffsetLimitOK(t *testing.T) {
 
 		q := r.URL.Query()
 
+		if i := q.Get("min_id"); i != sMinID {
+			t.Fatalf("unexpected min_id parameter: %s != %s", i, sMinID)
+		}
+		if i := q.Get("max_id"); i != sMaxID {
+			t.Fatalf("unexpected max_id parameter: %s != %s", i, sMaxID)
+		}
 		if l := q.Get("limit"); l != sLimit {
 			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
 		}
@@ -66,7 +87,7 @@ func TestClientUserCheckinsOffsetLimitOK(t *testing.T) {
 	})
 	defer done()
 
-	checkins, _, err := c.User.Checkins(username)
+	checkins, _, err := c.User.CheckinsMinMaxIDLimit(username, minID, maxID, limit)
 	if err != nil {
 		t.Fatal(err)
 	}

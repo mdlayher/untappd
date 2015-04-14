@@ -70,6 +70,7 @@ type Client struct {
 
 		// https://untappd.com/api/docs#useractivityfeed
 		Checkins(username string) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimit(username string, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
 	}
 
 	// Methods involving a Beer
