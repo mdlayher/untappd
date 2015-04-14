@@ -8,7 +8,7 @@ import (
 )
 
 // TestClientUserCheckinsOK verifies that Client.User.Checkins always sets the
-// appropriate default limit values.
+// appropriate default limit value.
 func TestClientUserCheckinsOK(t *testing.T) {
 	limit := "25"
 
@@ -29,7 +29,7 @@ func TestClientUserCheckinsOK(t *testing.T) {
 	}
 }
 
-// TestClientUserCheckinsOffsetLimitSortBadUser verifies that
+// TestClientUserCheckinsBadUser verifies that
 // Client.User.Checkins returns an error when an invalid user
 // is queried.
 func TestClientUserCheckinsBadUser(t *testing.T) {
@@ -43,7 +43,7 @@ func TestClientUserCheckinsBadUser(t *testing.T) {
 	assertInvalidUserErr(t, err)
 }
 
-// TestClientUserCheckinsOffsetLimitOK verifies that Client.User.Checkins
+// TestClientUserCheckinsOK verifies that Client.User.Checkins
 // returns a valid checkins list, when used with correct parameters.
 func TestClientUserCheckinsOffsetLimitOK(t *testing.T) {
 	var limit = 25
@@ -147,7 +147,7 @@ var userCheckinsJSON = []byte(`{
     }
   },
   "notifications": [
-    
+
   ],
   "response": {
     "pagination": {

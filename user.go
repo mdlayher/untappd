@@ -299,36 +299,37 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit in
 	return beers, res, nil
 }
 
-// Checkins queries for information about a User's checked-ins.
-// The username parameter specifies the User whose checked-in beers will be
+// Checkins queries for information about a User's checkins.
+// The username parameter specifies the User whose checkins will be
 // returned.
 //
-// 50 beers is the maximum number of beers which may be returned by one call.
+// 50 checkins is the maximum number of checkins which may be returned by
+// one call.
 func (u *UserService) Checkins(username string) ([]*Checkin, *http.Response, error) {
 	limit := 25
 	q := url.Values{
 		"limit": []string{strconv.Itoa(limit)},
 	}
 
-	// Temporary struct to unmarshal beers JSON
+	// Temporary struct to unmarshal checkin JSON
 	var v struct {
 		Response struct {
 			Checkins struct {
 				Count int `json:"count"`
 				Items []struct {
-					ID         int            `json:"checkin_id"`
-					Beer       rawCheckinBeer `json:"beer"`
-					Brewery    rawBrewery     `json:"brewery"`
-					User       rawUser        `json:"user"`
-					UserRating float64        `json:"rating_score"`
-					Comment    string         `json:"checkin_comment"`
-					Created    responseTime   `json:"created_at"`
+					ID         int          `json:"checkin_id"`
+					Beer       rawBeer      `json:"beer"`
+					Brewery    rawBrewery   `json:"brewery"`
+					User       rawUser      `json:"user"`
+					UserRating float64      `json:"rating_score"`
+					Comment    string       `json:"checkin_comment"`
+					Created    responseTime `json:"created_at"`
 				} `json:"items"`
 			} `json:"checkins"`
 		} `json:"response"`
 	}
 
-	// Perform request for user beers by username
+	// Perform request for user checkins by username
 	res, err := u.client.request("GET", "user/checkins/"+username, q, &v)
 	if err != nil {
 		return nil, res, err
