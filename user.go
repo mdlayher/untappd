@@ -333,13 +333,14 @@ func (u *UserService) CheckinsMinMaxIDLimit(username string, minID int, maxID in
 			Checkins struct {
 				Count int `json:"count"`
 				Items []struct {
-					ID         int          `json:"checkin_id"`
-					Beer       rawBeer      `json:"beer"`
-					Brewery    rawBrewery   `json:"brewery"`
-					User       rawUser      `json:"user"`
-					UserRating float64      `json:"rating_score"`
-					Comment    string       `json:"checkin_comment"`
-					Created    responseTime `json:"created_at"`
+					ID         int           `json:"checkin_id"`
+					Beer       rawBeer       `json:"beer"`
+					Brewery    rawBrewery    `json:"brewery"`
+					User       rawUser       `json:"user"`
+					Venue      responseVenue `json:"venue"`
+					UserRating float64       `json:"rating_score"`
+					Comment    string        `json:"checkin_comment"`
+					Created    responseTime  `json:"created_at"`
 				} `json:"items"`
 			} `json:"checkins"`
 		} `json:"response"`
@@ -362,11 +363,18 @@ func (u *UserService) CheckinsMinMaxIDLimit(username string, minID int, maxID in
 			Created:    time.Time(v.Response.Checkins.Items[i].Created),
 		}
 		checkins[i] = checkin
-		checkins[i].Beer = v.Response.Checkins.Items[i].Beer.export()
 
-		// Information about the beer's brewery
+		checkins[i].Beer = v.Response.Checkins.Items[i].Beer.export()
 		checkins[i].Brewery = v.Response.Checkins.Items[i].Brewery.export()
 		checkins[i].User = v.Response.Checkins.Items[i].User.export()
+
+		// If no venue was set in the response JSON, venue will be nil
+		venue := v.Response.Checkins.Items[i].Venue
+		if venue.ID != 0 && venue.Name != "" {
+			// Since venue was not empty, add it to the struct
+			rv := rawVenue(v.Response.Checkins.Items[i].Venue)
+			checkins[i].Venue = rv.export()
+		}
 	}
 
 	return checkins, res, nil

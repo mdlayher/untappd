@@ -145,3 +145,24 @@ func (r *responseBadgeLevels) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+// responseVenue implements json.Unmarshaler, so that an empty array on
+// a checkin with no venue can be appropriately handled.
+type responseVenue rawVenue
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (r *responseVenue) UnmarshalJSON(data []byte) error {
+	// If no venue exists for a checkin, the API returns an empty array instead
+	// of a nil or empty object.  This method works around that.
+	if bytes.Equal(data, []byte("[]")) {
+		return nil
+	}
+
+	var v rawVenue
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*r = responseVenue(v)
+	return nil
+}

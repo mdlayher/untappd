@@ -371,3 +371,54 @@ func Test_responseBadgeLevelsUnmarshalJSON(t *testing.T) {
 		}
 	}
 }
+
+// Test_responseVenueUnmarshalJSON verifies that responseVenue.UnmarshalJSON
+// provides proper rawVenue output for a variety of responseVenue
+// JSON values from the Untappd APIv4.
+func Test_responseVenueUnmarshalJSON(t *testing.T) {
+	var tests = []struct {
+		description string
+		body        []byte
+		result      responseVenue
+		err         error
+	}{
+		{
+			description: "no venue (empty array, special API case)",
+			body:        []byte(`[]`),
+			result:      responseVenue{},
+		},
+		{
+			description: "no venue (empty object, possibly non-existant case)",
+			body:        []byte(`{}`),
+			result:      responseVenue{},
+		},
+		{
+			description: "venue exists",
+			body:        []byte(`{"venue_id":1,"venue_name":"foo"}`),
+			result: responseVenue{
+				ID:   1,
+				Name: "foo",
+			},
+		},
+		{
+			description: "bad JSON",
+			body:        []byte(`}`),
+			err:         errBadJSON,
+		},
+	}
+
+	for _, tt := range tests {
+		r := new(responseVenue)
+		err := r.UnmarshalJSON(tt.body)
+		if tt.err == nil && err != nil {
+			t.Fatal(err)
+		}
+		if tt.err != nil && err.Error() != tt.err.Error() {
+			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
+		}
+
+		if !reflect.DeepEqual(*r, responseVenue(tt.result)) {
+			t.Fatalf("unexpected responseVenue for test %q: %v != %v", tt.description, r, tt.result)
+		}
+	}
+}

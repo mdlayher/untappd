@@ -29,4 +29,9 @@ type Checkin struct {
 	// If available, information regarding the brewery which created
 	// this beer.
 	Brewery *Brewery
+
+	// If available, information regarding the venue where this checkin
+	// occurred.  If a venue was not added to the checkin, this member
+	// will be nil.
+	Venue *Venue
 }
