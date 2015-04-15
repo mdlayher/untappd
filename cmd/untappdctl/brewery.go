@@ -33,18 +33,7 @@ func breweryInfoCommand() cli.Command {
 		Action: func(ctx *cli.Context) {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "brewery ID"))
-			if err != nil {
-				nErr, ok := err.(*strconv.NumError)
-				if !ok {
-					log.Fatal(err)
-				}
-
-				if nErr.Err == strconv.ErrSyntax {
-					log.Fatal("invalid integer ID")
-				}
-
-				log.Fatal(err)
-			}
+			checkAtoiError(err)
 
 			// Query for brewery by ID, e.g. "untappdctl brewery info 1"
 			c := untappdClient(ctx)

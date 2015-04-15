@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/mdlayher/untappd"
@@ -133,4 +134,23 @@ func offsetLimitSort(ctx *cli.Context) (int, int, untappd.Sort) {
 	// Die on invalid sort, and show options
 	log.Fatalf("invalid sort type %q (options: %s)", sort, untappd.Sorts())
 	return offset, limit, untappd.Sort("")
+}
+
+// checkAtoiError reduces error-checking code duplication for functions
+// which require valid integer IDs.
+func checkAtoiError(err error) {
+	if err == nil {
+		return
+	}
+
+	nErr, ok := err.(*strconv.NumError)
+	if !ok {
+		log.Fatal(err)
+	}
+
+	if nErr.Err == strconv.ErrSyntax {
+		log.Fatal("invalid integer ID")
+	}
+
+	log.Fatal(err)
 }
