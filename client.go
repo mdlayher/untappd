@@ -92,6 +92,12 @@ type Client struct {
 		Search(query string) ([]*Brewery, *http.Response, error)
 		SearchOffsetLimit(query string, offset int, limit int) ([]*Brewery, *http.Response, error)
 	}
+
+	// Methods involving a Venue
+	Venue interface {
+		// https://untappd.com/api/docs#venueinfo
+		Info(id int, compact bool) (*Venue, *http.Response, error)
+	}
 }
 
 // NewClient creates a properly initialized instance of Client, using the input
@@ -132,6 +138,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 	c.User = &UserService{client: c}
 	c.Beer = &BeerService{client: c}
 	c.Brewery = &BreweryService{client: c}
+	c.Venue = &VenueService{client: c}
 
 	return c, nil
 }
