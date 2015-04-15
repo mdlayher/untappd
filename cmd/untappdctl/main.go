@@ -64,6 +64,7 @@ func main() {
 	app.Commands = []cli.Command{
 		beerCommand(offsetFlag, limitFlag, sortFlag),
 		userCommand(offsetFlag, limitFlag, sortFlag),
+		venueCommand(),
 	}
 
 	// Print all log output to stderr, so stdout only contains Untappd data

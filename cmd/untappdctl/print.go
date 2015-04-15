@@ -135,6 +135,35 @@ func printUsers(users []*untappd.User, info bool) {
 	}
 }
 
+// printVenues turns a slice of *untappd.Venue structs into a human-friendly
+// output format, and prints it to stdout.
+func printVenues(venues []*untappd.Venue) {
+	tw := tabWriter()
+
+	// Print field header
+	fmt.Fprintln(tw, "ID\tName\tCategory\tPublic\tLocation")
+
+	// Print out each checkin
+	for _, v := range venues {
+		fmt.Fprintf(tw, "%d\t%s\t%s\t%t\t%s\n",
+			v.ID,
+			v.Name,
+			v.Category,
+			v.Public,
+			fmt.Sprintf("%s, %s, %s",
+				v.Location.City,
+				v.Location.State,
+				v.Location.Country,
+			),
+		)
+	}
+
+	// Flush buffered output
+	if err := tw.Flush(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // tabWriter returns a *tabwriter.Writer appropriately configured
 // for tabular output.
 func tabWriter() *tabwriter.Writer {
