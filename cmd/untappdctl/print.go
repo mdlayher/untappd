@@ -71,6 +71,33 @@ func printBeers(beers []*untappd.Beer) {
 	}
 }
 
+// printBreweries turns a slice of *untappd.Brewery structs into a human-friendly
+// output format, and prints it to stdout.
+func printBreweries(breweries []*untappd.Brewery) {
+	tw := tabWriter()
+
+	// Print field header
+	fmt.Fprintln(tw, "ID\tName\tLocation")
+
+	// Print out each brewery
+	for _, b := range breweries {
+		fmt.Fprintf(tw, "%d\t%s\t%s\n",
+			b.ID,
+			b.Name,
+			fmt.Sprintf("%s, %s, %s",
+				b.Location.City,
+				b.Location.State,
+				b.Country,
+			),
+		)
+	}
+
+	// Flush buffered output
+	if err := tw.Flush(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // printCheckins turns a slice of *untappd.Checkin structs into a human-friendly
 // output format, and prints it to stdout.
 func printCheckins(checkins []*untappd.Checkin) {

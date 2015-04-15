@@ -13,7 +13,7 @@ import (
 func beerCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.StringFlag) cli.Command {
 	return cli.Command{
 		Name:    "beer",
-		Aliases: []string{"b"},
+		Aliases: []string{"be"},
 		Usage:   "query for beer information, by beer ID or name",
 		Subcommands: []cli.Command{
 			beerInfoCommand(),
