@@ -81,14 +81,22 @@ func printBreweries(breweries []*untappd.Brewery) {
 
 	// Print out each brewery
 	for _, b := range breweries {
-		fmt.Fprintf(tw, "%d\t%s\t%s\n",
-			b.ID,
-			b.Name,
-			fmt.Sprintf("%s, %s, %s",
+		// Use country as default location
+		l := b.Country
+
+		// Add extended information if available
+		if b.Location.City != "" && b.Location.State != "" {
+			l = fmt.Sprintf("%s, %s, %s",
 				b.Location.City,
 				b.Location.State,
 				b.Country,
-			),
+			)
+		}
+
+		fmt.Fprintf(tw, "%d\t%s\t%s\n",
+			b.ID,
+			b.Name,
+			l,
 		)
 	}
 
