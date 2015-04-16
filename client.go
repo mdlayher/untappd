@@ -47,32 +47,6 @@ type Client struct {
 	clientID     string
 	clientSecret string
 
-	// Methods involving a User
-	User interface {
-		// https://untappd.com/api/docs#userinfo
-		Info(username string, compact bool) (*User, *http.Response, error)
-
-		// https://untappd.com/api/docs#userfriends
-		Friends(username string) ([]*User, *http.Response, error)
-		FriendsOffsetLimit(username string, offset int, limit int) ([]*User, *http.Response, error)
-
-		// https://untappd.com/api/docs#userbadges
-		Badges(username string) ([]*Badge, *http.Response, error)
-		BadgesOffsetLimit(username string, offset int, limit int) ([]*Badge, *http.Response, error)
-
-		// https://untappd.com/api/docs#userwishlist
-		WishList(username string) ([]*Beer, *http.Response, error)
-		WishListOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
-
-		// https://untappd.com/api/docs#userbeers
-		Beers(username string) ([]*Beer, *http.Response, error)
-		BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
-
-		// https://untappd.com/api/docs#useractivityfeed
-		Checkins(username string) ([]*Checkin, *http.Response, error)
-		CheckinsMinMaxIDLimit(username string, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
-	}
-
 	// Methods involving a Beer
 	Beer interface {
 		// https://untappd.com/api/docs#beerinfo
@@ -91,6 +65,32 @@ type Client struct {
 		// https://untappd.com/api/docs#brewerysearch
 		Search(query string) ([]*Brewery, *http.Response, error)
 		SearchOffsetLimit(query string, offset int, limit int) ([]*Brewery, *http.Response, error)
+	}
+
+	// Methods involving a User
+	User interface {
+		// https://untappd.com/api/docs#userbadges
+		Badges(username string) ([]*Badge, *http.Response, error)
+		BadgesOffsetLimit(username string, offset int, limit int) ([]*Badge, *http.Response, error)
+
+		// https://untappd.com/api/docs#userbeers
+		Beers(username string) ([]*Beer, *http.Response, error)
+		BeersOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
+
+		// https://untappd.com/api/docs#useractivityfeed
+		Checkins(username string) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimit(username string, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
+
+		// https://untappd.com/api/docs#userfriends
+		Friends(username string) ([]*User, *http.Response, error)
+		FriendsOffsetLimit(username string, offset int, limit int) ([]*User, *http.Response, error)
+
+		// https://untappd.com/api/docs#userinfo
+		Info(username string, compact bool) (*User, *http.Response, error)
+
+		// https://untappd.com/api/docs#userwishlist
+		WishList(username string) ([]*Beer, *http.Response, error)
+		WishListOffsetLimitSort(username string, offset int, limit int, sort Sort) ([]*Beer, *http.Response, error)
 	}
 
 	// Methods involving a Venue
