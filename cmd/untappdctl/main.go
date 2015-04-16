@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -61,11 +62,23 @@ func main() {
 		Usage: fmt.Sprintf("sort type for API query results (options: %s)", untappd.Sorts()),
 	}
 
+	// Flags used to specify minimum and maximum checkin IDs
+	minIDFlag := cli.IntFlag{
+		Name:  "min_id",
+		Value: 0,
+		Usage: "minimum checkin ID for API query results",
+	}
+	maxIDFlag := cli.IntFlag{
+		Name:  "max_id",
+		Value: math.MaxInt32,
+		Usage: "maximum checkin ID for API query results",
+	}
+
 	// Add commands mirroring available untappd.Client services
 	app.Commands = []cli.Command{
-		beerCommand(offsetFlag, limitFlag, sortFlag),
+		beerCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		breweryCommand(offsetFlag, limitFlag),
-		userCommand(offsetFlag, limitFlag, sortFlag),
+		userCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		venueCommand(),
 	}
 
