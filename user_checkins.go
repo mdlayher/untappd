@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 )
 
 // Checkins queries for information about a User's checkins.
@@ -39,17 +38,8 @@ func (u *UserService) CheckinsMinMaxIDLimit(username string, minID int, maxID in
 	var v struct {
 		Response struct {
 			Checkins struct {
-				Count int `json:"count"`
-				Items []struct {
-					ID         int           `json:"checkin_id"`
-					Beer       rawBeer       `json:"beer"`
-					Brewery    rawBrewery    `json:"brewery"`
-					User       rawUser       `json:"user"`
-					Venue      responseVenue `json:"venue"`
-					UserRating float64       `json:"rating_score"`
-					Comment    string        `json:"checkin_comment"`
-					Created    responseTime  `json:"created_at"`
-				} `json:"items"`
+				Count int           `json:"count"`
+				Items []*rawCheckin `json:"items"`
 			} `json:"checkins"`
 		} `json:"response"`
 	}
@@ -63,26 +53,7 @@ func (u *UserService) CheckinsMinMaxIDLimit(username string, minID int, maxID in
 	// Build result slice from struct
 	checkins := make([]*Checkin, v.Response.Checkins.Count)
 	for i := range v.Response.Checkins.Items {
-		// Information about the beer itself
-		checkin := &Checkin{
-			ID:         v.Response.Checkins.Items[i].ID,
-			Comment:    v.Response.Checkins.Items[i].Comment,
-			UserRating: v.Response.Checkins.Items[i].UserRating,
-			Created:    time.Time(v.Response.Checkins.Items[i].Created),
-		}
-		checkins[i] = checkin
-
-		checkins[i].Beer = v.Response.Checkins.Items[i].Beer.export()
-		checkins[i].Brewery = v.Response.Checkins.Items[i].Brewery.export()
-		checkins[i].User = v.Response.Checkins.Items[i].User.export()
-
-		// If no venue was set in the response JSON, venue will be nil
-		venue := v.Response.Checkins.Items[i].Venue
-		if venue.ID != 0 && venue.Name != "" {
-			// Since venue was not empty, add it to the struct
-			rv := rawVenue(v.Response.Checkins.Items[i].Venue)
-			checkins[i].Venue = rv.export()
-		}
+		checkins[i] = v.Response.Checkins.Items[i].export()
 	}
 
 	return checkins, res, nil

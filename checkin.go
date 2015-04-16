@@ -35,3 +35,39 @@ type Checkin struct {
 	// will be nil.
 	Venue *Venue
 }
+
+// rawCheckin is the raw JSON representation of an Untappd checkin.  Its data is
+// unmarshaled from JSON and then exported to a Checkin struct.
+type rawCheckin struct {
+	ID         int           `json:"checkin_id"`
+	Beer       rawBeer       `json:"beer"`
+	Brewery    rawBrewery    `json:"brewery"`
+	User       rawUser       `json:"user"`
+	Venue      responseVenue `json:"venue"`
+	UserRating float64       `json:"rating_score"`
+	Comment    string        `json:"checkin_comment"`
+	Created    responseTime  `json:"created_at"`
+}
+
+// export creates an exported Checkin from a rawCheckin struct, allowing for more
+// useful structures to be created for client consumption.
+func (r *rawCheckin) export() *Checkin {
+	c := &Checkin{
+		ID:         r.ID,
+		Comment:    r.Comment,
+		UserRating: r.UserRating,
+		Created:    time.Time(r.Created),
+		Beer:       r.Beer.export(),
+		Brewery:    r.Brewery.export(),
+		User:       r.User.export(),
+	}
+
+	// If no venue was set in the response JSON, venue will be nil
+	if r.Venue.ID != 0 && r.Venue.Name != "" {
+		// Since venue was not empty, add it to the struct
+		rv := rawVenue(r.Venue)
+		c.Venue = rv.export()
+	}
+
+	return c
+}
