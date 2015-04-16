@@ -49,6 +49,10 @@ type Client struct {
 
 	// Methods involving a Beer
 	Beer interface {
+		// https://untappd.com/api/docs#beeractivityfeed
+		Checkins(id int) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimit(id int, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
+
 		// https://untappd.com/api/docs#beerinfo
 		Info(id int, compact bool) (*Beer, *http.Response, error)
 
