@@ -377,6 +377,21 @@ func assertInvalidVenueErr(t *testing.T, err error) {
 	}
 }
 
+// assertInvalidLocalErr asserts that an input error was generated from the
+// invalidLocalErrJSON used in some tests.
+func assertInvalidLocalErr(t *testing.T, err error) {
+	uErr := assertInvalidCommonErr(t, err)
+
+	detail := "Your missing the 'lat' or 'lng' parameter."
+	if d := uErr.Detail; d != detail {
+		t.Fatalf("unexpected error detail: %q != %q", d, detail)
+	}
+	eType := "invalid_param"
+	if e := uErr.Type; e != eType {
+		t.Fatalf("unexpected error type: %q != %q", e, eType)
+	}
+}
+
 // assertInvalidQueryErr asserts that an input error was generated from the
 // invalidQueryErrJSON used in some tests.
 func assertInvalidQueryErr(t *testing.T, err error) {
@@ -436,6 +451,9 @@ var invalidBreweryErrJSON = []byte(`{"meta":{"code":500,"error_detail":"This Bre
 
 // invalidVenueErrJSON is canned JSON used to test for invalid venue handling
 var invalidVenueErrJSON = []byte(`{"meta":{"code":500,"error_detail":"This Venue ID is invalid.","error_type":"invalid_param","response_time":{"time":0,"measure":"seconds"}}}`)
+
+// invalidLocalErrJSON is canned JSON used to test for invalid query handling
+var invalidLocalErrJSON = []byte(`{"meta":{"code":500,"error_detail":"Your missing the 'lat' or 'lng' parameter.","error_type":"invalid_param","response_time":{"time":0,"measure":"seconds"}}}`)
 
 // invalidQueryErrJSON is canned JSON used to test for invalid query handling
 var invalidQueryErrJSON = []byte(`{"meta":{"code":500,"error_detail":"Your missing the 'q' parameter.","error_type":"invalid_param","response_time":{"time":0,"measure":"seconds"}}}`)

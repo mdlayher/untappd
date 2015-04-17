@@ -71,6 +71,21 @@ type Client struct {
 		SearchOffsetLimit(query string, offset int, limit int) ([]*Brewery, *http.Response, error)
 	}
 
+	// Methods involving a Local area
+	Local interface {
+		// https://untappd.com/api/docs#theppublocal
+		Checkins(latitude float64, longitude float64) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimitRadius(
+			latitude float64,
+			longitude float64,
+			minID int,
+			maxID int,
+			limit int,
+			radius int,
+			units Distance,
+		) ([]*Checkin, *http.Response, error)
+	}
+
 	// Methods involving a User
 	User interface {
 		// https://untappd.com/api/docs#userbadges
@@ -143,6 +158,7 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 	c.Beer = &BeerService{client: c}
 	c.Brewery = &BreweryService{client: c}
 	c.Venue = &VenueService{client: c}
+	c.Local = &LocalService{client: c}
 
 	return c, nil
 }
