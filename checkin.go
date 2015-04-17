@@ -3,7 +3,6 @@ package untappd
 import (
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -42,13 +41,7 @@ type Checkin struct {
 // getCheckins is the backing method for both Client.User.Checkins and
 // Client.Beer.Checkins.  It handles performing the necessary HTTP request
 // with the correct parameters, and returns a list of Checkins.
-func getCheckins(c *Client, endpoint string, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error) {
-	q := url.Values{
-		"min_id": []string{strconv.Itoa(minID)},
-		"max_id": []string{strconv.Itoa(maxID)},
-		"limit":  []string{strconv.Itoa(limit)},
-	}
-
+func getCheckins(c *Client, endpoint string, q url.Values) ([]*Checkin, *http.Response, error) {
 	// Temporary struct to unmarshal checkin JSON
 	var v struct {
 		Response struct {

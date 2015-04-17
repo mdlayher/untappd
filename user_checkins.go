@@ -3,6 +3,8 @@ package untappd
 import (
 	"math"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 // Checkins queries for information about a User's checkins.
@@ -26,5 +28,9 @@ func (u *UserService) Checkins(username string) ([]*Checkin, *http.Response, err
 // 50 checkins is the maximum number of checkins which may be returned by
 // one call.
 func (u *UserService) CheckinsMinMaxIDLimit(username string, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error) {
-	return getCheckins(u.client, "user/checkins/"+username, minID, maxID, limit)
+	return getCheckins(u.client, "user/checkins/"+username, url.Values{
+		"min_id": []string{strconv.Itoa(minID)},
+		"max_id": []string{strconv.Itoa(maxID)},
+		"limit":  []string{strconv.Itoa(limit)},
+	})
 }

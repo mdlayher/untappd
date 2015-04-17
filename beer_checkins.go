@@ -3,6 +3,7 @@ package untappd
 import (
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -28,5 +29,9 @@ func (b *BeerService) Checkins(id int) ([]*Checkin, *http.Response, error) {
 // 25 checkins is the maximum number of checkins which may be returned by
 // one call.
 func (b *BeerService) CheckinsMinMaxIDLimit(id int, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error) {
-	return getCheckins(b.client, "beer/checkins/"+strconv.Itoa(id), minID, maxID, limit)
+	return getCheckins(b.client, "beer/checkins/"+strconv.Itoa(id), url.Values{
+		"min_id": []string{strconv.Itoa(minID)},
+		"max_id": []string{strconv.Itoa(maxID)},
+		"limit":  []string{strconv.Itoa(limit)},
+	})
 }
