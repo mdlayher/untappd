@@ -30,16 +30,15 @@ type LocalService struct {
 //
 // This method returns up to 25 of a local area's most recent checkins.
 // For more granular control, and to page through the checkins list using ID
-// parameters, use CheckinsMinMaxIDLimit instead.
+// parameters, use CheckinsMinMaxIDLimitRadius instead.
 func (l *LocalService) Checkins(latitude float64, longitude float64) ([]*Checkin, *http.Response, error) {
 	return l.CheckinsMinMaxIDLimitRadius(latitude, longitude, 0, math.MaxInt32, 25, 25, DistanceMiles)
 }
 
-// CheckinsMinMaxIDLimit queries for information about a Local's checkins,
-// but also accepts minimum checkin ID, maximum checkin ID, and a limit
-// parameter to enable paging through checkins. The ID parameter
-// specifies the Local ID, which will return a list of recent checkins
-// for a given Local.
+// CheckinsMinMaxIDLimitRadius queries for information about a local area's
+// checkins, but also accepts a variety of parameters to query and page
+// through checkins.  The latitude and longitude parameters specify the
+// local area where recent checkins will be queried.
 //
 // 25 checkins is the maximum number of checkins which may be returned by
 // one call.
