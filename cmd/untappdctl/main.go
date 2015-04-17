@@ -78,6 +78,7 @@ func main() {
 	app.Commands = []cli.Command{
 		beerCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		breweryCommand(offsetFlag, limitFlag),
+		localCommand(limitFlag, minIDFlag, maxIDFlag),
 		userCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		venueCommand(),
 	}
