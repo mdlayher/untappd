@@ -80,7 +80,7 @@ func main() {
 		breweryCommand(offsetFlag, limitFlag, minIDFlag, maxIDFlag),
 		localCommand(limitFlag, minIDFlag, maxIDFlag),
 		userCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
-		venueCommand(),
+		venueCommand(limitFlag, minIDFlag, maxIDFlag),
 	}
 
 	// Print all log output to stderr, so stdout only contains Untappd data
