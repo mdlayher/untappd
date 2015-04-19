@@ -118,6 +118,10 @@ type Client struct {
 
 	// Methods involving a Venue
 	Venue interface {
+		// https://untappd.com/api/docs#venueactivityfeed
+		Checkins(id int) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimit(id int, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
+
 		// https://untappd.com/api/docs#venueinfo
 		Info(id int, compact bool) (*Venue, *http.Response, error)
 	}
