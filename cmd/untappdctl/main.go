@@ -30,7 +30,8 @@ func main() {
 		},
 	}
 
-	// Add global flags for Untappd API client ID and client secret
+	// Add global flags for Untappd API client ID, client secret, and
+	// authenticated access token
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "client_id",
@@ -41,6 +42,11 @@ func main() {
 			Name:   "client_secret",
 			Usage:  "client secret parameter for Untappd APIv4",
 			EnvVar: "UNTAPPD_SECRET",
+		},
+		cli.StringFlag{
+			Name:   "access_token",
+			Usage:  "authenticated access token for Untappd APIv4",
+			EnvVar: "UNTAPPD_TOKEN",
 		},
 	}
 
@@ -76,6 +82,7 @@ func main() {
 
 	// Add commands mirroring available untappd.Client services
 	app.Commands = []cli.Command{
+		authCommand(),
 		beerCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		breweryCommand(offsetFlag, limitFlag, minIDFlag, maxIDFlag),
 		localCommand(limitFlag, minIDFlag, maxIDFlag),
@@ -91,14 +98,23 @@ func main() {
 	app.Run(os.Args)
 }
 
-// untappdClient creates an initialized *untappd.Client using the client ID
-// and secret from global CLI context.
+// untappdClient creates an initialized *untappd.Client using either the
+// access token, or client ID and secret from global CLI context.
 func untappdClient(ctx *cli.Context) *untappd.Client {
-	c, err := untappd.NewClient(
-		ctx.GlobalString("client_id"),
-		ctx.GlobalString("client_secret"),
-		nil,
-	)
+	var c *untappd.Client
+	var err error
+
+	// Always prefer authenticated access token, if available
+	token := ctx.GlobalString("access_token")
+	if token != "" {
+		c, err = untappd.NewAuthenticatedClient(token, nil)
+	} else {
+		c, err = untappd.NewClient(
+			ctx.GlobalString("client_id"),
+			ctx.GlobalString("client_secret"),
+			nil,
+		)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
