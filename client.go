@@ -28,6 +28,10 @@ const (
 )
 
 var (
+	// ErrNoAccessToken is returned when an empty AccessToken is passed to
+	// NewAuthenticatedClient.
+	ErrNoAccessToken = errors.New("no client ID")
+
 	// ErrNoClientID is returned when an empty Client ID is passed to NewClient.
 	ErrNoClientID = errors.New("no client ID")
 
@@ -46,6 +50,8 @@ type Client struct {
 
 	clientID     string
 	clientSecret string
+
+	accessToken string
 
 	// Methods involving a Beer
 	Beer interface {
@@ -133,17 +139,46 @@ type Client struct {
 // To use a Client with the Untappd APIv4, you must register for an API key
 // here: https://untappd.com/api/register.
 func NewClient(clientID string, clientSecret string, client *http.Client) (*Client, error) {
-	// If input client is nil, use http.DefaultClient
-	if client == nil {
-		client = http.DefaultClient
-	}
-
 	// Disallow empty ID and secret
 	if clientID == "" {
 		return nil, ErrNoClientID
 	}
 	if clientSecret == "" {
 		return nil, ErrNoClientSecret
+	}
+
+	// Perform common client setup
+	return newClient(clientID, clientSecret, "", client)
+}
+
+// NewAuthenticatedClient creates a properly initialized and authenticated instance
+// of Client, using the input access token and http.Client.
+//
+// NewAuthenticatedClient must be called in order to create a Client which can
+// access authenticated API actions, such as checking in beers, toasting other
+// users' checkins, adding comments, etc.
+//
+// To use an authenticated Client with the Untappd APIv4, you must register
+// for an API key here: https://untappd.com/api/register.  Next, you must follow
+// the OAuth Authentication procedure documented here:
+// https://untappd.com/api/docs#authentication.  Upon successful OAuth Authentication,
+// you will receive an access token which can be used with NewAuthenticatedClient.
+func NewAuthenticatedClient(accessToken string, client *http.Client) (*Client, error) {
+	// Disallow empty access token
+	if accessToken == "" {
+		return nil, ErrNoAccessToken
+	}
+
+	// Perform common client setup
+	return newClient("", "", accessToken, client)
+}
+
+// newClient handles common setup logic for a Client for NewClient and
+// NewAuthenticatedClient.
+func newClient(clientID string, clientSecret string, accessToken string, client *http.Client) (*Client, error) {
+	// If input client is nil, use http.DefaultClient
+	if client == nil {
+		client = http.DefaultClient
 	}
 
 	// Set up basic client
@@ -159,6 +194,8 @@ func NewClient(clientID string, clientSecret string, client *http.Client) (*Clie
 
 		clientID:     clientID,
 		clientSecret: clientSecret,
+
+		accessToken: accessToken,
 	}
 
 	// Add "services" which allow access to various API methods
@@ -211,9 +248,15 @@ func (c *Client) request(method string, endpoint string, query url.Values, v int
 		}
 	}
 
-	// Add required client ID and client secret
-	q.Set("client_id", c.clientID)
-	q.Set("client_secret", c.clientSecret)
+	// Always prefer authenticated client access, using an access token.
+	// If no token is found, fall back to unauthenticated client ID and
+	// client secret.
+	if c.accessToken != "" {
+		q.Set("access_token", c.accessToken)
+	} else {
+		q.Set("client_id", c.clientID)
+		q.Set("client_secret", c.clientSecret)
+	}
 	u.RawQuery = q.Encode()
 
 	// Generate new HTTP request for appropriate URL

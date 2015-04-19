@@ -33,6 +33,25 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
+// TestNewAuthenticatedClient tests for all possible errors which can occur
+// during a call to NewAuthenticatedClient.
+func TestNewAuthenticatedClient(t *testing.T) {
+	var tests = []struct {
+		description string
+		accessToken string
+		expErr      error
+	}{
+		{"no access token", "", ErrNoAccessToken},
+		{"ok", "foo", nil},
+	}
+
+	for _, tt := range tests {
+		if _, err := NewAuthenticatedClient(tt.accessToken, nil); err != tt.expErr {
+			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.expErr)
+		}
+	}
+}
+
 // TestErrorError tests for consistent output from the Error.Error method.
 func TestErrorError(t *testing.T) {
 	var tests = []struct {
@@ -99,6 +118,29 @@ func TestClient_requestContainsAPIKeys(t *testing.T) {
 	})
 	defer done()
 
+	if _, err := c.request(method, "foo", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestClient_requestPrefersAccessToken verifies that an authenticated access_token
+// is always preferred for API requests.
+func TestClient_requestPrefersAccessToken(t *testing.T) {
+	method := "GET"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		assertParameters(t, r, url.Values{
+			"access_token":  []string{"foo"},
+			"client_id":     []string{""},
+			"client_secret": []string{""},
+		})
+	})
+	defer done()
+
+	c.accessToken = "foo"
 	if _, err := c.request(method, "foo", nil, nil); err != nil {
 		t.Fatal(err)
 	}
