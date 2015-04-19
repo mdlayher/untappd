@@ -10,14 +10,55 @@ import (
 
 // breweryCommand allows access to untappd.Client.Brewery methods, such as brewery
 // information by ID, and query by search term.
-func breweryCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag) cli.Command {
+func breweryCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
 	return cli.Command{
 		Name:    "brewery",
 		Aliases: []string{"br"},
 		Usage:   "query for brewery information, by brewery ID or name",
 		Subcommands: []cli.Command{
+			breweryCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 			breweryInfoCommand(),
 			brewerySearchCommand(offsetFlag, limitFlag),
+		},
+	}
+}
+
+// breweryCheckinsCommand allows access to the untappd.Client.Brewery.Checkins method, which
+// can query for information about recent checkins for beers made by a brewery, by ID.
+func breweryCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
+	return cli.Command{
+		Name:    "checkins",
+		Aliases: []string{"c"},
+		Usage:   "query for recent checkins for beers from a specified brewery, by ID",
+		Flags: []cli.Flag{
+			limitFlag,
+			minIDFlag,
+			maxIDFlag,
+		},
+
+		Action: func(ctx *cli.Context) {
+			// Check for valid integer ID
+			id, err := strconv.Atoi(mustStringArg(ctx, "brewery ID"))
+			checkAtoiError(err)
+
+			minID, maxID, limit := ctx.Int("min_id"), ctx.Int("max_id"), ctx.Int("limit")
+
+			// Query for brewery's checkins by brewery ID, e.g.
+			// "untappdctl brewery checkins 1"
+			c := untappdClient(ctx)
+			checkins, res, err := c.Brewery.CheckinsMinMaxIDLimit(
+				id,
+				minID,
+				maxID,
+				limit,
+			)
+			printRateLimit(res)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Print out checkins in human-readable format
+			printCheckins(checkins)
 		},
 	}
 }
