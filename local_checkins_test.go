@@ -3,6 +3,7 @@ package untappd
 import (
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -20,29 +21,15 @@ func TestClientLocalCheckinsOK(t *testing.T) {
 	distance := DistanceMiles
 
 	c, done := localCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if l := q.Get("lat"); l != lat {
-			t.Fatalf("unexpected lat parameter: %s != %s", l, lat)
-		}
-		if l := q.Get("lng"); l != lng {
-			t.Fatalf("unexpected lng parameter: %s != %s", l, lng)
-		}
-		if i := q.Get("min_id"); i != minID {
-			t.Fatalf("unexpected min_id parameter: %s != %s", i, minID)
-		}
-		if i := q.Get("max_id"); i != maxID {
-			t.Fatalf("unexpected max_id parameter: %s != %s", i, maxID)
-		}
-		if l := q.Get("limit"); l != limit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
-		}
-		if r := q.Get("radius"); r != radius {
-			t.Fatalf("unexpected radius parameter: %s != %s", r, radius)
-		}
-		if d := q.Get("dist_pref"); d != string(distance) {
-			t.Fatalf("unexpected dist_pref parameter: %s != %s", d, distance)
-		}
+		assertParameters(t, r, url.Values{
+			"lat":       []string{lat},
+			"lng":       []string{lng},
+			"min_id":    []string{minID},
+			"max_id":    []string{maxID},
+			"limit":     []string{limit},
+			"radius":    []string{radius},
+			"dist_pref": []string{string(distance)},
+		})
 
 		// Empty JSON response since we already passed checks
 		w.Write([]byte("{}"))
@@ -92,29 +79,15 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	var distance = DistanceMiles
 
 	c, done := localCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if l := q.Get("lat"); l != sLat {
-			t.Fatalf("unexpected lat parameter: %s != %s", l, sLat)
-		}
-		if l := q.Get("lng"); l != sLng {
-			t.Fatalf("unexpected lng parameter: %s != %s", l, sLng)
-		}
-		if i := q.Get("min_id"); i != sMinID {
-			t.Fatalf("unexpected min_id parameter: %s != %s", i, sMinID)
-		}
-		if i := q.Get("max_id"); i != sMaxID {
-			t.Fatalf("unexpected max_id parameter: %s != %s", i, sMaxID)
-		}
-		if l := q.Get("limit"); l != sLimit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
-		}
-		if r := q.Get("radius"); r != sRadius {
-			t.Fatalf("unexpected radius parameter: %s != %s", r, sRadius)
-		}
-		if d := q.Get("dist_pref"); d != string(distance) {
-			t.Fatalf("unexpected dist_pref parameter: %s != %s", d, distance)
-		}
+		assertParameters(t, r, url.Values{
+			"lat":       []string{sLat},
+			"lng":       []string{sLng},
+			"min_id":    []string{sMinID},
+			"max_id":    []string{sMaxID},
+			"limit":     []string{sLimit},
+			"radius":    []string{sRadius},
+			"dist_pref": []string{string(distance)},
+		})
 
 		// JSON is in same format as /v4/user/checkins, so we can
 		// reuse it here

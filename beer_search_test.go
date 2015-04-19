@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -16,20 +17,12 @@ func TestClientBeerSearchOK(t *testing.T) {
 	sort := "date"
 
 	c, done := beerSearchTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if qu := q.Get("q"); qu != query {
-			t.Fatalf("unexpected q parameter: %q != %q", qu, query)
-		}
-		if o := q.Get("offset"); o != offset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, offset)
-		}
-		if l := q.Get("limit"); l != limit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
-		}
-		if s := q.Get("sort"); s != sort {
-			t.Fatalf("unexpected sort parameter: %q != %q", s, sort)
-		}
+		assertParameters(t, r, url.Values{
+			"q":      []string{query},
+			"offset": []string{offset},
+			"limit":  []string{limit},
+			"sort":   []string{sort},
+		})
 
 		// Empty JSON response since we already passed checks
 		w.Write([]byte("{}"))
@@ -68,20 +61,12 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 
 	query := "russian river pliny"
 	c, done := beerSearchTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if qu := q.Get("q"); qu != query {
-			t.Fatalf("unexpected q parameter: %q != %q", qu, query)
-		}
-		if o := q.Get("offset"); o != sOffset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, sOffset)
-		}
-		if l := q.Get("limit"); l != sLimit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
-		}
-		if s := q.Get("sort"); s != string(sort) {
-			t.Fatalf("unexpected sort parameter: %q != %q", s, sort)
-		}
+		assertParameters(t, r, url.Values{
+			"q":      []string{query},
+			"offset": []string{sOffset},
+			"limit":  []string{sLimit},
+			"sort":   []string{string(sort)},
+		})
 
 		w.Write(beerSearchJSON)
 	})

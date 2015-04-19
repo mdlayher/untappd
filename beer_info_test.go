@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -32,9 +33,9 @@ func TestClientBeerInfoBadBeer(t *testing.T) {
 // beer output.
 func TestClientBeerInfoCompactOK(t *testing.T) {
 	c, done := beerInfoTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		if c := r.URL.Query().Get("compact"); c != "true" {
-			t.Fatalf("unexpected compact query value: %q != %q", c, "true")
-		}
+		assertParameters(t, r, url.Values{
+			"compact": []string{"true"},
+		})
 
 		// In the future, we may return compact canned beer data here.
 		// For now, write a mostly empty JSON object is enough to get

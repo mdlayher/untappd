@@ -3,6 +3,7 @@ package untappd
 import (
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -16,17 +17,11 @@ func TestClientBreweryCheckinsOK(t *testing.T) {
 	limit := "25"
 
 	c, done := breweryCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if i := q.Get("min_id"); i != minID {
-			t.Fatalf("unexpected min_id parameter: %s != %s", i, minID)
-		}
-		if i := q.Get("max_id"); i != maxID {
-			t.Fatalf("unexpected max_id parameter: %s != %s", i, maxID)
-		}
-		if l := q.Get("limit"); l != limit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
-		}
+		assertParameters(t, r, url.Values{
+			"min_id": []string{minID},
+			"max_id": []string{maxID},
+			"limit":  []string{limit},
+		})
 
 		// Empty JSON response since we already passed checks
 		w.Write([]byte("{}"))
@@ -72,17 +67,11 @@ func TestClientBreweryCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
 			t.Fatalf("unexpected URL path: %q != %q", p, path)
 		}
 
-		q := r.URL.Query()
-
-		if i := q.Get("min_id"); i != sMinID {
-			t.Fatalf("unexpected min_id parameter: %s != %s", i, sMinID)
-		}
-		if i := q.Get("max_id"); i != sMaxID {
-			t.Fatalf("unexpected max_id parameter: %s != %s", i, sMaxID)
-		}
-		if l := q.Get("limit"); l != sLimit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
-		}
+		assertParameters(t, r, url.Values{
+			"min_id": []string{sMinID},
+			"max_id": []string{sMaxID},
+			"limit":  []string{sLimit},
+		})
 
 		// JSON is in same format as /v4/user/checkins, so we can
 		// reuse it here

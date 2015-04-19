@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -14,14 +15,10 @@ func TestClientUserFriendsOK(t *testing.T) {
 	limit := "25"
 
 	c, done := userFriendsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if o := q.Get("offset"); o != offset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, offset)
-		}
-		if l := q.Get("limit"); l != limit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
-		}
+		assertParameters(t, r, url.Values{
+			"offset": []string{offset},
+			"limit":  []string{limit},
+		})
 
 		// Empty JSON response since we already passed checks
 		w.Write([]byte("{}"))
@@ -62,14 +59,10 @@ func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 			t.Fatalf("unexpected URL path: %q != %q", p, path)
 		}
 
-		q := r.URL.Query()
-
-		if o := q.Get("offset"); o != sOffset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, sOffset)
-		}
-		if l := q.Get("limit"); l != sLimit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
-		}
+		assertParameters(t, r, url.Values{
+			"offset": []string{sOffset},
+			"limit":  []string{sLimit},
+		})
 
 		w.Write(userFriendsJSON)
 	})

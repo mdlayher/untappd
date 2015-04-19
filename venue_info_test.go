@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -32,9 +33,9 @@ func TestClientVenueInfoBadVenue(t *testing.T) {
 // venue output.
 func TestClientVenueInfoCompactOK(t *testing.T) {
 	c, done := venueInfoTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		if c := r.URL.Query().Get("compact"); c != "true" {
-			t.Fatalf("unexpected compact query value: %q != %q", c, "true")
-		}
+		assertParameters(t, r, url.Values{
+			"compact": []string{"true"},
+		})
 
 		// In the future, we may return compact canned venue data here.
 		// For now, write a mostly empty JSON object is enough to get

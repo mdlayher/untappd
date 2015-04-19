@@ -92,14 +92,10 @@ func TestClient_requestContainsAPIKeys(t *testing.T) {
 			t.Fatalf("unexpected method: %q != %q", m, method)
 		}
 
-		q := r.URL.Query()
-
-		if q.Get("client_id") == "" {
-			t.Fatal("empty client_id query parameter")
-		}
-		if q.Get("client_secret") == "" {
-			t.Fatal("empty client_secret query parameter")
-		}
+		assertParameters(t, r, url.Values{
+			"client_id":     []string{"foo"},
+			"client_secret": []string{"bar"},
+		})
 	})
 	defer done()
 
@@ -117,16 +113,12 @@ func TestClient_requestContainsQueryParameters(t *testing.T) {
 			t.Fatalf("unexpected method: %q != %q", m, method)
 		}
 
-		q := r.URL.Query()
+		assertParameters(t, r, url.Values{
+			"foo": []string{"bar"},
+			"bar": []string{"baz"},
+		})
 
-		if s := q.Get("foo"); s != "bar" {
-			t.Fatalf("unexpected query parameter: %q != %q", s, "bar")
-		}
-		if s := q.Get("bar"); s != "baz" {
-			t.Fatalf("unexpected query parameter: %q != %q", s, "baz")
-		}
-
-		s, ok := q["baz"]
+		s, ok := r.URL.Query()["baz"]
 		if !ok {
 			t.Fatal("missing query parameter: baz")
 		}
@@ -314,6 +306,18 @@ func testClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *ht
 
 	return client, func() {
 		srv.Close()
+	}
+}
+
+// assertParameters asserts that query parameters from an HTTP request
+// match an expected set of query parameter values.
+func assertParameters(t *testing.T, r *http.Request, expected url.Values) {
+	q := r.URL.Query()
+
+	for k := range expected {
+		if actual, expected := q.Get(k), expected.Get(k); actual != expected {
+			t.Fatalf("unexpected parameter %q: %v != %v", k, actual, expected)
+		}
 	}
 }
 

@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -15,17 +16,11 @@ func TestClientBrewerySearchOK(t *testing.T) {
 	limit := "25"
 
 	c, done := brewerySearchTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if qu := q.Get("q"); qu != query {
-			t.Fatalf("unexpected q parameter: %q != %q", qu, query)
-		}
-		if o := q.Get("offset"); o != offset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, offset)
-		}
-		if l := q.Get("limit"); l != limit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, limit)
-		}
+		assertParameters(t, r, url.Values{
+			"q":      []string{query},
+			"offset": []string{offset},
+			"limit":  []string{limit},
+		})
 
 		// Empty JSON response since we already passed checks
 		w.Write([]byte("{}"))
@@ -62,17 +57,11 @@ func TestClientBrewerySearchOffsetLimitOK(t *testing.T) {
 
 	query := "russian river"
 	c, done := brewerySearchTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-
-		if qu := q.Get("q"); qu != query {
-			t.Fatalf("unexpected q parameter: %q != %q", qu, query)
-		}
-		if o := q.Get("offset"); o != sOffset {
-			t.Fatalf("unexpected offset parameter: %s != %s", o, sOffset)
-		}
-		if l := q.Get("limit"); l != sLimit {
-			t.Fatalf("unexpected limit parameter: %s != %s", l, sLimit)
-		}
+		assertParameters(t, r, url.Values{
+			"q":      []string{query},
+			"offset": []string{sOffset},
+			"limit":  []string{sLimit},
+		})
 
 		w.Write(brewerySearchJSON)
 	})

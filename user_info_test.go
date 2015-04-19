@@ -2,6 +2,7 @@ package untappd
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -29,9 +30,9 @@ func TestClientUserInfoBadUser(t *testing.T) {
 // user output.
 func TestClientUserInfoCompactOK(t *testing.T) {
 	c, done := userInfoTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		if c := r.URL.Query().Get("compact"); c != "true" {
-			t.Fatalf("unexpected compact query value: %q != %q", c, "true")
-		}
+		assertParameters(t, r, url.Values{
+			"compact": []string{"true"},
+		})
 
 		// In the future, we may return compact canned user data here.
 		// For now, write a mostly empty JSON object is enough to get
