@@ -135,43 +135,8 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Checkin{
-		&Checkin{
-			ID:      137117722,
-			Comment: "When in Rome..",
-			Beer: &Beer{
-				Name:  "Brooklyn Bowl Pale Ale",
-				Style: "American Pale Ale",
-			},
-			Brewery: &Brewery{
-				Name: "Kelso of Brooklyn",
-			},
-			User: &User{
-				UserName: "gregavola",
-			},
-		},
-	}
-
-	for i := range checkins {
-		if checkins[i].ID != expected[i].ID {
-			t.Fatalf("unexpected checkin ID: %d != %d", checkins[i].ID, expected[i].ID)
-		}
-		if checkins[i].Comment != expected[i].Comment {
-			t.Fatalf("unexpected checkin Comment: %d != %d", checkins[i].Comment, expected[i].Comment)
-		}
-		if checkins[i].Beer.Name != expected[i].Beer.Name {
-			t.Fatalf("unexpected beer Name: %q != %q", checkins[i].Beer.Name, expected[i].Beer.Name)
-		}
-		if checkins[i].Beer.Style != expected[i].Beer.Style {
-			t.Fatalf("unexpected beer Style: %q != %q", checkins[i].Beer.Style, expected[i].Beer.Style)
-		}
-		if checkins[i].Brewery.Name != expected[i].Brewery.Name {
-			t.Fatalf("unexpected checkin Brewery.Name: %q != %q", checkins[i].Brewery.Name, expected[i].Brewery.Name)
-		}
-		if checkins[i].User.UserName != expected[i].User.UserName {
-			t.Fatalf("unexpected checkin User.Name: %q != %q", checkins[i].User.UserName, expected[i].User.UserName)
-		}
-	}
+	// Check data against expected set of checkins
+	assertExpectedCheckins(t, checkins)
 }
 
 // localCheckinTestClient builds upon testClient, and adds additional sanity checks

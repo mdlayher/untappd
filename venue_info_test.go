@@ -74,7 +74,7 @@ func TestClientVenueInfoOK(t *testing.T) {
 	}
 	venueName := "Bell's Eccentric Cafe & General Store"
 	if n := v.Name; n != venueName {
-		t.Fatalf("unexpected Name: %q != %q", v, venueName)
+		t.Fatalf("unexpected Name: %q != %q", n, venueName)
 	}
 	venueCity := "Kalamazoo"
 	if c := v.Location.City; c != venueCity {
