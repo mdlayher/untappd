@@ -53,6 +53,13 @@ type Client struct {
 
 	accessToken string
 
+	// Methods which require authentication
+	Auth interface {
+		// https://untappd.com/api/docs#activityfeed
+		Checkins() ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimit(minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)
+	}
+
 	// Methods involving a Beer
 	Beer interface {
 		// https://untappd.com/api/docs#beeractivityfeed
@@ -199,6 +206,7 @@ func newClient(clientID string, clientSecret string, accessToken string, client 
 	}
 
 	// Add "services" which allow access to various API methods
+	c.Auth = &AuthService{client: c}
 	c.User = &UserService{client: c}
 	c.Beer = &BeerService{client: c}
 	c.Brewery = &BreweryService{client: c}
