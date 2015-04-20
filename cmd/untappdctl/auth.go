@@ -15,10 +15,55 @@ import (
 // their client ID and client secret.  A temporary HTTP server is started, and
 // authentication flow is handled automatically once the user clicks the initial
 // URL.
-func authCommand() cli.Command {
+func authCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
 	return cli.Command{
 		Name:    "auth",
 		Aliases: []string{"a"},
+		Usage:   "access authenticated Untappd APIv4 methods",
+		Subcommands: []cli.Command{
+			authCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
+			authLoginCommand(),
+		},
+	}
+}
+
+// authCheckinsCommand allows access to the untappd.Client.Beer.Checkins method, which
+// can query for information about recent checkins for a beer, by ID.
+func authCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
+	return cli.Command{
+		Name:    "checkins",
+		Aliases: []string{"c"},
+		Usage:   "[auth] query for recent checkins from friends",
+		Flags: []cli.Flag{
+			limitFlag,
+			minIDFlag,
+			maxIDFlag,
+		},
+
+		Action: func(ctx *cli.Context) {
+			// Query for checkins by beername, e.g.
+			// "untappdctl beer checkins mdlayher"
+			c := untappdClient(ctx)
+			checkins, res, err := c.Auth.CheckinsMinMaxIDLimit(
+				ctx.Int("min_id"),
+				ctx.Int("max_id"),
+				ctx.Int("limit"),
+			)
+			printRateLimit(res)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Print out checkins in human-readable format
+			printCheckins(checkins)
+		},
+	}
+}
+
+func authLoginCommand() cli.Command {
+	return cli.Command{
+		Name:    "login",
+		Aliases: []string{"l"},
 		Usage:   "authenticate using OAuth to Untappd APIv4",
 
 		Action: func(ctx *cli.Context) {

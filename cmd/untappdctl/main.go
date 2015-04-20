@@ -82,7 +82,7 @@ func main() {
 
 	// Add commands mirroring available untappd.Client services
 	app.Commands = []cli.Command{
-		authCommand(),
+		authCommand(limitFlag, minIDFlag, maxIDFlag),
 		beerCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		breweryCommand(offsetFlag, limitFlag, minIDFlag, maxIDFlag),
 		localCommand(limitFlag, minIDFlag, maxIDFlag),
