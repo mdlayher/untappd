@@ -152,6 +152,7 @@ func (a *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer res.Body.Close()
 
 	// Verify authentication server did not return an error
 	if c := res.StatusCode; c > 299 || c < 200 {
@@ -175,10 +176,6 @@ func (a *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Decode JSON body to retrieve token
 	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
-		return
-	}
-	if err := res.Body.Close(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
