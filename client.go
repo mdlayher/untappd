@@ -301,6 +301,35 @@ func (c *Client) request(method string, endpoint string, query url.Values, v int
 	return res, json.NewDecoder(res.Body).Decode(v)
 }
 
+// getCheckins is the backing method for both any request which returns a
+// list of checkins.  It handles performing the necessary HTTP request
+// with the correct parameters, and returns a list of Checkins.
+func (c *Client) getCheckins(endpoint string, q url.Values) ([]*Checkin, *http.Response, error) {
+	// Temporary struct to unmarshal checkin JSON
+	var v struct {
+		Response struct {
+			Checkins struct {
+				Count int           `json:"count"`
+				Items []*rawCheckin `json:"items"`
+			} `json:"checkins"`
+		} `json:"response"`
+	}
+
+	// Perform request for user checkins by ID
+	res, err := c.request("GET", endpoint, q, &v)
+	if err != nil {
+		return nil, res, err
+	}
+
+	// Build result slice from struct
+	checkins := make([]*Checkin, v.Response.Checkins.Count)
+	for i := range v.Response.Checkins.Items {
+		checkins[i] = v.Response.Checkins.Items[i].export()
+	}
+
+	return checkins, res, nil
+}
+
 // checkResponse checks for a non-200 HTTP status code, and returns any errors
 // encountered.
 func checkResponse(res *http.Response) error {

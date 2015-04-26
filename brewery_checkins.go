@@ -30,7 +30,7 @@ func (b *BreweryService) Checkins(id int) ([]*Checkin, *http.Response, error) {
 // 25 checkins is the maximum number of checkins which may be returned by
 // one call.
 func (b *BreweryService) CheckinsMinMaxIDLimit(id int, minID int, maxID int, limit int) ([]*Checkin, *http.Response, error) {
-	return getCheckins(b.client, "brewery/checkins/"+strconv.Itoa(id), url.Values{
+	return b.client.getCheckins("brewery/checkins/"+strconv.Itoa(id), url.Values{
 		"min_id": []string{strconv.Itoa(minID)},
 		"max_id": []string{strconv.Itoa(maxID)},
 		"limit":  []string{strconv.Itoa(limit)},

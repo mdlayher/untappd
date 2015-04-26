@@ -29,7 +29,7 @@ func (a *AuthService) Checkins() ([]*Checkin, *http.Response, error) {
 // 50 checkins is the maximum number of checkins which may be returned by
 // one call.
 func (a *AuthService) CheckinsMinMaxIDLimit(minID int, maxID int, limit int) ([]*Checkin, *http.Response, error) {
-	return getCheckins(a.client, "checkin/recent", url.Values{
+	return a.client.getCheckins("checkin/recent", url.Values{
 		"min_id": []string{strconv.Itoa(minID)},
 		"max_id": []string{strconv.Itoa(maxID)},
 		"limit":  []string{strconv.Itoa(limit)},

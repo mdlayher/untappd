@@ -1,8 +1,6 @@
 package untappd
 
 import (
-	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -36,35 +34,6 @@ type Checkin struct {
 	// occurred.  If a venue was not added to the checkin, this member
 	// will be nil.
 	Venue *Venue
-}
-
-// getCheckins is the backing method for both Client.User.Checkins and
-// Client.Beer.Checkins.  It handles performing the necessary HTTP request
-// with the correct parameters, and returns a list of Checkins.
-func getCheckins(c *Client, endpoint string, q url.Values) ([]*Checkin, *http.Response, error) {
-	// Temporary struct to unmarshal checkin JSON
-	var v struct {
-		Response struct {
-			Checkins struct {
-				Count int           `json:"count"`
-				Items []*rawCheckin `json:"items"`
-			} `json:"checkins"`
-		} `json:"response"`
-	}
-
-	// Perform request for user checkins by ID
-	res, err := c.request("GET", endpoint, q, &v)
-	if err != nil {
-		return nil, res, err
-	}
-
-	// Build result slice from struct
-	checkins := make([]*Checkin, v.Response.Checkins.Count)
-	for i := range v.Response.Checkins.Items {
-		checkins[i] = v.Response.Checkins.Items[i].export()
-	}
-
-	return checkins, res, nil
 }
 
 // rawCheckin is the raw JSON representation of an Untappd checkin.  Its data is
