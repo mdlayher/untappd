@@ -24,7 +24,7 @@ func (b *VenueService) Info(id int, compact bool) (*Venue, *http.Response, error
 	}
 
 	// Perform request for venue information by ID
-	res, err := b.client.request("GET", "venue/info/"+strconv.Itoa(id), q, &v)
+	res, err := b.client.request("GET", "venue/info/"+strconv.Itoa(id), nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

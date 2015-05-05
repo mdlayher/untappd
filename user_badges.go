@@ -38,7 +38,7 @@ func (u *UserService) BadgesOffsetLimit(username string, offset int, limit int) 
 	}
 
 	// Perform request for user badges by username
-	res, err := u.client.request("GET", "user/badges/"+username, q, &v)
+	res, err := u.client.request("GET", "user/badges/"+username, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

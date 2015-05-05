@@ -40,7 +40,7 @@ func (b *BreweryService) SearchOffsetLimit(query string, offset int, limit int) 
 	}
 
 	// Perform request for brewery search
-	res, err := b.client.request("GET", "search/brewery", q, &v)
+	res, err := b.client.request("GET", "search/brewery", nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

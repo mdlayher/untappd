@@ -44,7 +44,7 @@ func (u *UserService) FriendsOffsetLimit(username string, offset int, limit int)
 	}
 
 	// Perform request for user friends by username
-	res, err := u.client.request("GET", "user/friends/"+username, q, &v)
+	res, err := u.client.request("GET", "user/friends/"+username, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

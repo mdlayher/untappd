@@ -10,16 +10,22 @@
 package untappd
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
 const (
-	// jsonContentType is the content type for JSON data
+	// formEncodedContentType is the content type for key/value POST
+	// body requests.
+	formEncodedContentType = "application/x-www-form-urlencoded"
+
+	// jsonContentType is the content type for JSON data.
 	jsonContentType = "application/json"
 
 	// untappdUserAgent is the default user agent this package will report to
@@ -238,7 +244,9 @@ func (e Error) Error() string {
 }
 
 // request creates a new HTTP request, using the specified HTTP method and API endpoint.
-func (c *Client) request(method string, endpoint string, query url.Values, v interface{}) (*http.Response, error) {
+// Additionally, it accepts POST body parameters, GET query parameters, and an
+// optional struct which can be used to unmarshal result JSON.
+func (c *Client) request(method string, endpoint string, body url.Values, query url.Values, v interface{}) (*http.Response, error) {
 	// Generate relative URL using API root and endpoint
 	rel, err := url.Parse(fmt.Sprintf("%s/%s/", c.url.Path, endpoint))
 	if err != nil {
@@ -267,15 +275,33 @@ func (c *Client) request(method string, endpoint string, query url.Values, v int
 	}
 	u.RawQuery = q.Encode()
 
+	// Determine if request will contain a POST body
+	hasBody := method == "POST" && len(body) > 0
+	var length int
+
+	// If performing a POST request and body parameters exist, encode
+	// them now
+	buf := bytes.NewBuffer(nil)
+	if hasBody {
+		// Encode and retrieve length to send to server
+		buf = bytes.NewBufferString(body.Encode())
+		length = buf.Len()
+	}
+
 	// Generate new HTTP request for appropriate URL
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
 
 	// Set headers to indicate proper content type
 	req.Header.Add("Accept", jsonContentType)
-	req.Header.Add("Content-Type", jsonContentType)
+
+	// For POST requests, add proper headers
+	if hasBody {
+		req.Header.Add("Content-Type", formEncodedContentType)
+		req.Header.Add("Content-Length", strconv.Itoa(length))
+	}
 
 	// Identify the client
 	req.Header.Add("User-Agent", c.UserAgent)
@@ -316,7 +342,7 @@ func (c *Client) getCheckins(endpoint string, q url.Values) ([]*Checkin, *http.R
 	}
 
 	// Perform request for user checkins by ID
-	res, err := c.request("GET", endpoint, q, &v)
+	res, err := c.request("GET", endpoint, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

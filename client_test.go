@@ -118,7 +118,7 @@ func TestClient_requestContainsAPIKeys(t *testing.T) {
 	})
 	defer done()
 
-	if _, err := c.request(method, "foo", nil, nil); err != nil {
+	if _, err := c.request(method, "foo", nil, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -141,7 +141,35 @@ func TestClient_requestPrefersAccessToken(t *testing.T) {
 	defer done()
 
 	c.accessToken = "foo"
-	if _, err := c.request(method, "foo", nil, nil); err != nil {
+	if _, err := c.request(method, "foo", nil, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestClient_requestContainsRequestBody verifies that all request body items
+// are present in API requests, when HTTP method is POST
+func TestClient_requestContainsRequestBody(t *testing.T) {
+	method := "POST"
+	c, done := testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
+		if m := r.Method; m != method {
+			t.Fatalf("unexpected method: %q != %q", m, method)
+		}
+
+		k := "foo"
+		if got, want := r.PostFormValue(k), "bar"; got != want {
+			t.Fatalf("unexpected request body parameter %q: %v != %v", k, got, want)
+		}
+		k = "bar"
+		if got, want := r.PostFormValue(k), "baz"; got != want {
+			t.Fatalf("unexpected request body parameter %q: %v != %v", k, got, want)
+		}
+	})
+	defer done()
+
+	if _, err := c.request(method, "foo", url.Values{
+		"foo": []string{"bar"},
+		"bar": []string{"baz"},
+	}, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -172,7 +200,7 @@ func TestClient_requestContainsQueryParameters(t *testing.T) {
 	})
 	defer done()
 
-	if _, err := c.request(method, "foo", url.Values{
+	if _, err := c.request(method, "foo", nil, url.Values{
 		"foo": []string{"bar"},
 		"bar": []string{"baz"},
 		"baz": []string{"qux", "corge"},
@@ -195,17 +223,13 @@ func TestClient_requestContainsHeaders(t *testing.T) {
 		if s := h.Get("Accept"); s != jsonContentType {
 			t.Fatalf("unexpected Accept header: %q != %q", s, jsonContentType)
 		}
-		if s := h.Get("Content-Type"); s != jsonContentType {
-			t.Fatalf("unexpected Content-Type header: %q != %q", s, jsonContentType)
-		}
-
 		if s := h.Get("User-Agent"); s != untappdUserAgent {
 			t.Fatalf("unexpected User-Agent header: %q != %q", s, untappdUserAgent)
 		}
 	})
 	defer done()
 
-	if _, err := c.request(method, "foo", nil, nil); err != nil {
+	if _, err := c.request(method, "foo", nil, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -231,7 +255,7 @@ func TestClient_requestContainsBody(t *testing.T) {
 		} `json:"meta"`
 	}
 
-	if _, err := c.request(method, "foo", nil, &v); err != nil {
+	if _, err := c.request(method, "foo", nil, nil, &v); err != nil {
 		t.Fatal(err)
 	}
 

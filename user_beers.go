@@ -50,7 +50,7 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit in
 	}
 
 	// Perform request for user beers by username
-	res, err := u.client.request("GET", "user/beers/"+username, q, &v)
+	res, err := u.client.request("GET", "user/beers/"+username, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

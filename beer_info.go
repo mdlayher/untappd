@@ -24,7 +24,7 @@ func (b *BeerService) Info(id int, compact bool) (*Beer, *http.Response, error) 
 	}
 
 	// Perform request for beer information by ID
-	res, err := b.client.request("GET", "beer/info/"+strconv.Itoa(id), q, &v)
+	res, err := b.client.request("GET", "beer/info/"+strconv.Itoa(id), nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

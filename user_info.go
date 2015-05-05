@@ -23,7 +23,7 @@ func (u *UserService) Info(username string, compact bool) (*User, *http.Response
 	}
 
 	// Perform request for user information by username
-	res, err := u.client.request("GET", "user/info/"+username, q, &v)
+	res, err := u.client.request("GET", "user/info/"+username, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

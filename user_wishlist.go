@@ -47,7 +47,7 @@ func (u *UserService) WishListOffsetLimitSort(username string, offset int, limit
 	}
 
 	// Perform request for user beers by username
-	res, err := u.client.request("GET", "user/wishlist/"+username, q, &v)
+	res, err := u.client.request("GET", "user/wishlist/"+username, nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}

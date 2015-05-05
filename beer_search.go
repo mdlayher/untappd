@@ -49,7 +49,7 @@ func (b *BeerService) SearchOffsetLimitSort(query string, offset int, limit int,
 	}
 
 	// Perform request for beer search
-	res, err := b.client.request("GET", "search/beer", q, &v)
+	res, err := b.client.request("GET", "search/beer", nil, q, &v)
 	if err != nil {
 		return nil, res, err
 	}
