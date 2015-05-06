@@ -107,6 +107,9 @@ func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn
 		clientSecret,
 		ru.String(),
 	))
+	if err != nil {
+		return nil, nil, err
+	}
 
 	// If no token handler is set, use default
 	if fn == nil {
