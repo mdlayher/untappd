@@ -61,6 +61,9 @@ type Client struct {
 
 	// Methods which require authentication
 	Auth interface {
+		// https://untappd.com/api/docs#checkin
+		Checkin(r CheckinRequest) (*Checkin, *http.Response, error)
+
 		// https://untappd.com/api/docs#activityfeed
 		Checkins() ([]*Checkin, *http.Response, error)
 		CheckinsMinMaxIDLimit(minID int, maxID int, limit int) ([]*Checkin, *http.Response, error)

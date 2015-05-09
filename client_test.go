@@ -387,6 +387,16 @@ func assertParameters(t *testing.T, r *http.Request, expected url.Values) {
 	}
 }
 
+// assertBodyParameters asserts that body parameters from an HTTP request
+// match an expected set of query parameter values.
+func assertBodyParameters(t *testing.T, r *http.Request, expected url.Values) {
+	for k := range expected {
+		if actual, expected := r.PostFormValue(k), expected.Get(k); actual != expected {
+			t.Fatalf("unexpected parameter %q: %v != %v", k, actual, expected)
+		}
+	}
+}
+
 // assertInvalidUserErr asserts that an input error was generated from the
 // invalidUserErrJSON used in some tests.
 func assertInvalidUserErr(t *testing.T, err error) {
@@ -477,6 +487,21 @@ func assertInvalidQueryErr(t *testing.T, err error) {
 	}
 }
 
+// assertInvalidCheckinErr asserts that an input error was generated from the
+// invalidCheckinErrJSON used in some tests.
+func assertInvalidCheckinErr(t *testing.T, err error) {
+	uErr := assertInvalidCommonErr(t, err)
+
+	detail := "The bid field is required."
+	if d := uErr.Detail; d != detail {
+		t.Fatalf("unexpected error detail: %q != %q", d, detail)
+	}
+	eType := "invalid_param"
+	if e := uErr.Type; e != eType {
+		t.Fatalf("unexpected error type: %q != %q", e, eType)
+	}
+}
+
 // assertInvalidCommonErr removes some redundant logic from other assert
 // test helpers.
 func assertInvalidCommonErr(t *testing.T, err error) *Error {
@@ -527,3 +552,6 @@ var invalidLocalErrJSON = []byte(`{"meta":{"code":500,"error_detail":"Your missi
 
 // invalidQueryErrJSON is canned JSON used to test for invalid query handling
 var invalidQueryErrJSON = []byte(`{"meta":{"code":500,"error_detail":"Your missing the 'q' parameter.","error_type":"invalid_param","response_time":{"time":0,"measure":"seconds"}}}`)
+
+// invalidCheckinErrJSON is canned JSON used to test for an invalid checkin attempt
+var invalidCheckinErrJSON = []byte(`{"meta":{"code":500,"error_detail":"The bid field is required.","error_type":"invalid_param","developer_friendly":"","response_time":{"time":0.036,"measure":"seconds"}},"response":[]}`)
