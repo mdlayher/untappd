@@ -182,7 +182,7 @@ func Test_defaultTokenFnBadWriter(t *testing.T) {
 	defaultTokenFn("", w, nil)
 
 	if got, want := w.Code, http.StatusInternalServerError; got != want {
-		t.Fatalf("unexpected HTTP status code: %d != %d", got != want)
+		t.Fatalf("unexpected HTTP status code: %d != %d", got, want)
 	}
 }
 
