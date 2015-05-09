@@ -6,6 +6,20 @@ import (
 	"strconv"
 )
 
+// CheckinRequest represents a request to check-in a beer to Untappd.
+// To perform a successful checkin, the BeerID, GMTOffset, and TimeZone
+// members must be filled in.  The easiest way to obtain the GMTOffset
+// and TimeZone for your current system is to use the time package from
+// the standard library:
+//   beerID := 1
+//   timezone, offset := time.Now().Zone()
+//   offset = offset / 60 / 60
+//
+//   request := CheckinRequest{
+//       BeerID:    beerID,
+//       GMTOffset: offset,
+//       TimeZone:  timezone,
+//   }
 type CheckinRequest struct {
 	// Mandatory parameters
 	BeerID    int
@@ -30,6 +44,9 @@ type CheckinRequest struct {
 	Foursquare bool
 }
 
+// Checkin checks-in a beer specified by the input CheckinRequest struct.
+// A variety of struct members can be filled in to specify the rating,
+// comment, etc. for a checkin.
 func (a *AuthService) Checkin(r CheckinRequest) (*Checkin, *http.Response, error) {
 	// Add required parameters
 	q := url.Values{
