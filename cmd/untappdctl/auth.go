@@ -5,24 +5,73 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/mdlayher/untappd"
 )
 
-// authCommand allows a user to easily authenticate to the Untappd APIv4 using
-// their client ID and client secret.  A temporary HTTP server is started, and
-// authentication flow is handled automatically once the user clicks the initial
-// URL.
+// authCommand allows a user to easily authenticate to the Untappd APIv4, and
+// perform actions which require authentication, such as checking in beers.
 func authCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
 	return cli.Command{
 		Name:    "auth",
 		Aliases: []string{"a"},
 		Usage:   "access authenticated Untappd APIv4 methods",
 		Subcommands: []cli.Command{
+			authCheckinCommand(),
 			authCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 			authLoginCommand(),
+		},
+	}
+}
+
+// authCheckinCommand allows access to the untappd.Client.Beer.Checkin method, which
+// can check in a beer, by ID.
+func authCheckinCommand() cli.Command {
+	return cli.Command{
+		Name:  "checkin",
+		Usage: "[auth] check-in a beer, by ID",
+		Flags: []cli.Flag{
+			cli.Float64Flag{
+				Name:  "rating",
+				Usage: "optional rating, 0.5-5.0, for this checkin",
+			},
+			cli.StringFlag{
+				Name:  "comment",
+				Usage: "optional comment for this checkin",
+			},
+		},
+
+		Action: func(ctx *cli.Context) {
+			// Check for valid integer ID
+			id, err := strconv.Atoi(mustStringArg(ctx, "beer ID"))
+			checkAtoiError(err)
+
+			// Use system's timezone and offset for request,
+			// dividing to get a single digit offset
+			// Thanks: https://github.com/cmar/untappd/blob/master/lib/untappd/checkin.rb#L50
+			timezone, offset := time.Now().Zone()
+			offset = offset / 60 / 60
+
+			// Attempt to perform checkin
+			c := untappdClient(ctx)
+			checkin, res, err := c.Auth.Checkin(untappd.CheckinRequest{
+				BeerID:    id,
+				GMTOffset: offset,
+				TimeZone:  timezone,
+				Comment:   ctx.String("comment"),
+				Rating:    ctx.Float64("rating"),
+			})
+			printRateLimit(res)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Print out checkin in human-readable format
+			printCheckins([]*untappd.Checkin{checkin})
 		},
 	}
 }
@@ -31,9 +80,8 @@ func authCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.Int
 // can query for information about recent checkins for a beer, by ID.
 func authCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
 	return cli.Command{
-		Name:    "checkins",
-		Aliases: []string{"c"},
-		Usage:   "[auth] query for recent checkins from friends",
+		Name:  "checkins",
+		Usage: "[auth] query for recent checkins from friends",
 		Flags: []cli.Flag{
 			limitFlag,
 			minIDFlag,
