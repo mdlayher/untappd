@@ -34,8 +34,8 @@ func (l *LocalService) CheckinsMinMaxIDLimitRadius(
 	units Distance,
 ) ([]*Checkin, *http.Response, error) {
 	return l.client.getCheckins("thepub/local", url.Values{
-		"lat":       []string{strconv.FormatFloat(latitude, 'f', -1, 64)},
-		"lng":       []string{strconv.FormatFloat(longitude, 'f', -1, 64)},
+		"lat":       []string{formatFloat(latitude)},
+		"lng":       []string{formatFloat(longitude)},
 		"min_id":    []string{strconv.Itoa(minID)},
 		"max_id":    []string{strconv.Itoa(maxID)},
 		"limit":     []string{strconv.Itoa(limit)},

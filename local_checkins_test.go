@@ -59,10 +59,10 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusBadLocal(t *testing.T) {
 // returns a valid checkins list, when used with correct parameters.
 func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	var lat = 1.00
-	sLat := strconv.FormatFloat(lat, 'f', -1, 64)
+	sLat := formatFloat(lat)
 
 	var lng = -1.00
-	sLng := strconv.FormatFloat(lng, 'f', -1, 64)
+	sLng := formatFloat(lng)
 
 	var minID int
 	sMinID := strconv.Itoa(minID)

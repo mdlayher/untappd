@@ -399,3 +399,9 @@ func checkResponse(res *http.Response) error {
 		Duration:          time.Duration(m.ResponseTime),
 	}
 }
+
+// formatFloat converts a float64 to a string in a common way, to
+// reduce inconsistencies with repeated calls to strconv.FormatFloat.
+func formatFloat(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
+}

@@ -60,17 +60,17 @@ func (a *AuthService) Checkin(r CheckinRequest) (*Checkin, *http.Response, error
 		q.Set("foursquare_id", r.FoursquareID)
 	}
 	if r.Latitude != 0 {
-		q.Set("geolat", strconv.FormatFloat(r.Latitude, 'f', -1, 64))
+		q.Set("geolat", formatFloat(r.Latitude))
 	}
 	if r.Longitude != 0 {
-		q.Set("geolng", strconv.FormatFloat(r.Longitude, 'f', -1, 64))
+		q.Set("geolng", formatFloat(r.Longitude))
 	}
 
 	if r.Comment != "" {
 		q.Set("shout", r.Comment)
 	}
 	if r.Rating != 0 {
-		q.Set("rating", strconv.FormatFloat(r.Rating, 'f', -1, 64))
+		q.Set("rating", formatFloat(r.Rating))
 	}
 
 	if r.Facebook {

@@ -22,14 +22,14 @@ func TestClientAuthCheckinOK(t *testing.T) {
 	foursquareID := "ABCDEF"
 
 	latitude := 1.0
-	sLatitude := strconv.FormatFloat(latitude, 'f', -1, 64)
+	sLatitude := formatFloat(latitude)
 	longitude := 1.0
-	sLongitude := strconv.FormatFloat(longitude, 'f', -1, 64)
+	sLongitude := formatFloat(longitude)
 
 	comment := "hello world"
 
 	rating := 3.5
-	sRating := strconv.FormatFloat(rating, 'f', -1, 64)
+	sRating := formatFloat(rating)
 
 	facebook := true
 	twitter := true

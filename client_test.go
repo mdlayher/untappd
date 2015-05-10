@@ -332,6 +332,38 @@ func Test_checkResponseOKWithBody(t *testing.T) {
 	})
 }
 
+// Test_formatFloat verifies that formatFloat produces consistent
+// strings from float64 values.
+func Test_formatFloat(t *testing.T) {
+	var tests = []struct {
+		f float64
+		s string
+	}{
+		{
+			f: 0.0,
+			s: "0",
+		},
+		{
+			f: 1.5,
+			s: "1.5",
+		},
+		{
+			f: 2.2345,
+			s: "2.2345",
+		},
+		{
+			f: 03.456789,
+			s: "3.456789",
+		},
+	}
+
+	for i, tt := range tests {
+		if s := formatFloat(tt.f); s != tt.s {
+			t.Fatalf("%02d: unexpected string for %f: %s != %s", i, tt.f, s, tt.s)
+		}
+	}
+}
+
 // withHTTPResponse is a test helper which generates a *http.Response and invokes
 // an input closure, used for testing.
 func withHTTPResponse(t *testing.T, code int, contentType string, body []byte, fn func(t *testing.T, res *http.Response)) {
