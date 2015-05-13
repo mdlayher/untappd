@@ -71,15 +71,15 @@ func localCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFla
 			// pair, e.g.
 			// "untappdctl local checkins 42.291,-85.587"
 			c := untappdClient(ctx)
-			checkins, res, err := c.Local.CheckinsMinMaxIDLimitRadius(
-				lat,
-				lng,
-				ctx.Int("min_id"),
-				ctx.Int("max_id"),
-				ctx.Int("limit"),
-				ctx.Int("radius"),
-				unit,
-			)
+			checkins, res, err := c.Local.CheckinsMinMaxIDLimitRadius(untappd.LocalCheckinsRequest{
+				Latitude:  lat,
+				Longitude: lng,
+				MinID:     ctx.Int("min_id"),
+				MaxID:     ctx.Int("max_id"),
+				Limit:     ctx.Int("limit"),
+				Radius:    ctx.Int("radius"),
+				Units:     unit,
+			})
 			printRateLimit(res)
 			if err != nil {
 				log.Fatal(err)

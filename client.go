@@ -101,15 +101,7 @@ type Client struct {
 	Local interface {
 		// https://untappd.com/api/docs#theppublocal
 		Checkins(latitude float64, longitude float64) ([]*Checkin, *http.Response, error)
-		CheckinsMinMaxIDLimitRadius(
-			latitude float64,
-			longitude float64,
-			minID int,
-			maxID int,
-			limit int,
-			radius int,
-			units Distance,
-		) ([]*Checkin, *http.Response, error)
+		CheckinsMinMaxIDLimitRadius(r LocalCheckinsRequest) ([]*Checkin, *http.Response, error)
 	}
 
 	// Methods involving a User

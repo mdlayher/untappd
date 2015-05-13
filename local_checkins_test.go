@@ -14,8 +14,6 @@ import (
 func TestClientLocalCheckinsOK(t *testing.T) {
 	lat := "0"
 	lng := "0"
-	minID := "0"
-	maxID := strconv.Itoa(math.MaxInt32)
 	limit := "25"
 	radius := "25"
 	distance := DistanceMiles
@@ -24,8 +22,6 @@ func TestClientLocalCheckinsOK(t *testing.T) {
 		assertParameters(t, r, url.Values{
 			"lat":       []string{lat},
 			"lng":       []string{lng},
-			"min_id":    []string{minID},
-			"max_id":    []string{maxID},
 			"limit":     []string{limit},
 			"radius":    []string{radius},
 			"dist_pref": []string{string(distance)},
@@ -51,7 +47,10 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusBadLocal(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.Local.CheckinsMinMaxIDLimitRadius(0.0, 0.0, 0, math.MaxInt32, 25, 25, DistanceMiles)
+	_, _, err := c.Local.CheckinsMinMaxIDLimitRadius(LocalCheckinsRequest{
+		Latitude:  0.0,
+		Longitude: 0.0,
+	})
 	assertInvalidLocalErr(t, err)
 }
 
@@ -64,7 +63,7 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	var lng = -1.00
 	sLng := formatFloat(lng)
 
-	var minID int
+	var minID = 1
 	sMinID := strconv.Itoa(minID)
 
 	var maxID = math.MaxInt32
@@ -95,15 +94,18 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	})
 	defer done()
 
-	checkins, _, err := c.Local.CheckinsMinMaxIDLimitRadius(
-		lat,
-		lng,
-		minID,
-		maxID,
-		limit,
-		radius,
-		distance,
-	)
+	checkins, _, err := c.Local.CheckinsMinMaxIDLimitRadius(LocalCheckinsRequest{
+		Latitude:  lat,
+		Longitude: lng,
+
+		MinID: minID,
+		MaxID: maxID,
+
+		Limit: limit,
+
+		Radius: radius,
+		Units:  distance,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
