@@ -15,7 +15,7 @@ import (
 //   timezone, offset := time.Now().Zone()
 //   offset = offset / 60 / 60
 //
-//   request := CheckinRequest{
+//   request := untappd.CheckinRequest{
 //       BeerID:    beerID,
 //       GMTOffset: offset,
 //       TimeZone:  timezone,
