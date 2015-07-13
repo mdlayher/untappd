@@ -12,15 +12,11 @@ import (
 // TestClientUserCheckinsOK verifies that Client.User.Checkins always sets the
 // appropriate default minimum ID, maximum ID, and limit values.
 func TestClientUserCheckinsOK(t *testing.T) {
-	minID := "0"
-	maxID := strconv.Itoa(math.MaxInt32)
 	limit := "25"
 
 	c, done := userCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		assertParameters(t, r, url.Values{
-			"min_id": []string{minID},
-			"max_id": []string{maxID},
-			"limit":  []string{limit},
+			"limit": []string{limit},
 		})
 
 		// Empty JSON response since we already passed checks
@@ -51,11 +47,7 @@ func TestClientUserCheckinsMinMaxIDLimitBadUser(t *testing.T) {
 // returns a valid checkins list, when used with correct parameters.
 func TestClientUserCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
 	var minID int
-	sMinID := strconv.Itoa(minID)
-
 	var maxID = math.MaxInt32
-	sMaxID := strconv.Itoa(maxID)
-
 	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
@@ -67,9 +59,7 @@ func TestClientUserCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
 		}
 
 		assertParameters(t, r, url.Values{
-			"min_id": []string{sMinID},
-			"max_id": []string{sMaxID},
-			"limit":  []string{sLimit},
+			"limit": []string{sLimit},
 		})
 
 		w.Write(userCheckinsJSON)
