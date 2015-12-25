@@ -37,6 +37,9 @@ type Checkin struct {
 
 	// Badges earned when this checkin was submitted.
 	Badges []*Badge
+
+	// Toasts by Untappd users for this checkin.
+	Toasts []*Toast
 }
 
 // rawCheckin is the raw JSON representation of an Untappd checkin.  Its data is
@@ -55,6 +58,11 @@ type rawCheckin struct {
 		Count int         `json:"count"`
 		Items []*rawBadge `json:"items"`
 	} `json:"badges"`
+
+	Toasts struct {
+		Count int         `json:"count"`
+		Items []*rawToast `json:"items"`
+	} `json:"toasts"`
 }
 
 // export creates an exported Checkin from a rawCheckin struct, allowing for more
@@ -82,6 +90,12 @@ func (r *rawCheckin) export() *Checkin {
 		badges[i] = r.Badges.Items[i].export()
 	}
 	c.Badges = badges
+
+	toasts := make([]*Toast, r.Toasts.Count)
+	for i := range r.Toasts.Items {
+		toasts[i] = r.Toasts.Items[i].export()
+	}
+	c.Toasts = toasts
 
 	return c
 }
