@@ -112,15 +112,18 @@ func printCheckins(checkins []*untappd.Checkin) {
 	tw := tabWriter()
 
 	// Print field header
-	fmt.Fprintln(tw, "ID\tName\tBrewery\tRating\tComment")
+	fmt.Fprintln(tw, "ID\tName\tBrewery\tRating\tBadges\tToasts\tComments\tComment")
 
 	// Print out each checkin
 	for _, c := range checkins {
-		fmt.Fprintf(tw, "%d\t%s\t%s\t%0.1f\t%s\n",
+		fmt.Fprintf(tw, "%d\t%s\t%s\t%0.2f\t%d\t%d\t%d\t%s\n",
 			c.ID,
 			c.Beer.Name,
 			c.Brewery.Name,
 			c.UserRating,
+			len(c.Badges),
+			len(c.Toasts),
+			len(c.Comments),
 			c.Comment,
 		)
 	}
