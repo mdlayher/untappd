@@ -34,6 +34,9 @@ type Checkin struct {
 	// occurred.  If a venue was not added to the checkin, this member
 	// will be nil.
 	Venue *Venue
+
+	// Badges earned when this checkin was submitted.
+	Badges []*Badge
 }
 
 // rawCheckin is the raw JSON representation of an Untappd checkin.  Its data is
@@ -47,6 +50,11 @@ type rawCheckin struct {
 	UserRating float64       `json:"rating_score"`
 	Comment    string        `json:"checkin_comment"`
 	Created    responseTime  `json:"created_at"`
+
+	Badges struct {
+		Count int         `json:"count"`
+		Items []*rawBadge `json:"items"`
+	} `json:"badges"`
 }
 
 // export creates an exported Checkin from a rawCheckin struct, allowing for more
@@ -68,6 +76,12 @@ func (r *rawCheckin) export() *Checkin {
 		rv := rawVenue(r.Venue)
 		c.Venue = rv.export()
 	}
+
+	badges := make([]*Badge, r.Badges.Count)
+	for i := range r.Badges.Items {
+		badges[i] = r.Badges.Items[i].export()
+	}
+	c.Badges = badges
 
 	return c
 }

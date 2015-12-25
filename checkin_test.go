@@ -21,6 +21,9 @@ func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
 			User: &User{
 				UserName: "gregavola",
 			},
+			Badges: []*Badge{{
+				Name: "Taste the Music",
+			}},
 		},
 	}
 
@@ -42,6 +45,9 @@ func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
 		}
 		if checkins[i].User.UserName != expected[i].User.UserName {
 			t.Fatalf("unexpected checkin User.Name: %q != %q", checkins[i].User.UserName, expected[i].User.UserName)
+		}
+		if checkins[i].Badges[0].Name != expected[i].Badges[0].Name {
+			t.Fatalf("unexpected checkin User.Name: %q != %q", checkins[i].Badges[0].Name, expected[i].Badges[0].Name)
 		}
 	}
 }
