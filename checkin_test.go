@@ -30,6 +30,13 @@ func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
 					UserName: "gregavola",
 				},
 			}},
+			Comments: []*Comment{{
+				ID:      1,
+				Comment: "hello, world",
+				User: &User{
+					UserName: "gregavola",
+				},
+			}},
 		},
 	}
 
@@ -60,6 +67,15 @@ func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
 		}
 		if checkins[i].Toasts[0].User.UserName != expected[i].Toasts[0].User.UserName {
 			t.Fatalf("unexpected checkin Toast.User.UserName: %d != %d", checkins[i].Toasts[0].User.UserName, expected[i].Toasts[0].User.UserName)
+		}
+		if checkins[i].Comments[0].ID != expected[i].Comments[0].ID {
+			t.Fatalf("unexpected checkin Toast.ID: %d != %d", checkins[i].Comments[0].ID, expected[i].Comments[0].ID)
+		}
+		if checkins[i].Comments[0].Comment != expected[i].Comments[0].Comment {
+			t.Fatalf("unexpected checkin Toast.Comment: %d != %d", checkins[i].Comments[0].Comment, expected[i].Comments[0].Comment)
+		}
+		if checkins[i].Comments[0].User.UserName != expected[i].Comments[0].User.UserName {
+			t.Fatalf("unexpected checkin Toast.User.UserName: %d != %d", checkins[i].Comments[0].User.UserName, expected[i].Comments[0].User.UserName)
 		}
 	}
 }
@@ -194,8 +210,16 @@ var userCheckinsJSON = []byte(`{
           },
           "comments": {
             "total_count": 0,
-            "count": 0,
-            "items": []
+            "count": 1,
+            "items": [
+              {
+                "comment_id": 1,
+                "comment": "hello, world",
+                "user": {
+                  "user_name": "gregavola"
+                }
+              }
+            ]
           },
           "toasts": {
             "total_count": 0,
