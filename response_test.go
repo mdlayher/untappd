@@ -178,7 +178,7 @@ func Test_responseTimeUnmarshalJSON(t *testing.T) {
 // from the Untappd APIv4.
 func Test_responseURLUnmarshalJSON(t *testing.T) {
 	// Bad URL used to validate URL parsing
-	badURL := "http://www.%a0.com/foo"
+	badURL := "http://www.%20.com/foo"
 
 	var tests = []struct {
 		description string
