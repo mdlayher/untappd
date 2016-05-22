@@ -89,6 +89,15 @@ func TestClientVenueInfoOK(t *testing.T) {
 	if c := v.Foursquare.URL; c != foursquareURL {
 		t.Fatalf("unexpected Foursquare.URL: %q != %q", c, foursquareURL)
 	}
+
+	topBeerName := "Beer Name"
+	if c := v.TopBeers[0].Name; c != topBeerName {
+		t.Fatalf("unexpected TopBeers[0].Name: %q != %q", c, topBeerName)
+	}
+	topBeerBrewery := "Brewery Name"
+	if c := v.TopBeers[0].Brewery.Name; c != topBeerBrewery {
+		t.Fatalf("unexpected TopBeers[0].Brewery.Name: %q != %q", c, topBeerBrewery)
+	}
 }
 
 // venueInfoTestClient builds upon testClient, and adds additional sanity checks
@@ -126,16 +135,34 @@ var venueJSON = []byte(`
   },
   "notifications": {},
   "response": {
-  "venue": {
-    "venue_id": 1021,
-    "venue_name": "Bell's Eccentric Cafe & General Store",
-    "location": {
-      "venue_city": "Kalamazoo"
-    },
-    "foursquare": {
-      "foursquare_id": "4a8f8efcf964a520761520e3",
-      "foursquare_url": "http://4sq.com/dheQpl"
+    "venue": {
+      "venue_id": 1021,
+      "venue_name": "Bell's Eccentric Cafe & General Store",
+      "location": {
+        "venue_city": "Kalamazoo"
+      },
+      "foursquare": {
+        "foursquare_id": "4a8f8efcf964a520761520e3",
+        "foursquare_url": "http://4sq.com/dheQpl"
+      },
+      "top_beers": {
+        "offset": 0,
+        "limit": 15,
+        "count": 1,
+        "items": [
+          {
+            "created_at": "Mon, 02 May 2016 00:48:33 +0000",
+            "total_count": 1,
+            "your_count": 0,
+            "beer": {
+              "beer_name": "Beer Name"
+            },
+            "brewery": {
+              "brewery_name": "Brewery Name"
+            }
+          }
+        ]
+      }
     }
-  }
   }
 }`)

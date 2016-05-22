@@ -23,6 +23,9 @@ type Venue struct {
 
 	// Foursquare data.
 	Foursquare VenueFoursquare
+
+	// Popular beers at this venue.
+	TopBeers []*Beer
 }
 
 // VenueService is a "service" which allows access to API methods involving
@@ -60,11 +63,30 @@ type rawVenue struct {
 	Public     bool            `json:"public_venue"`
 	Location   VenueLocation   `json:"location"`
 	Foursquare VenueFoursquare `json:"foursquare"`
+	TopBeers   struct {
+		Offset int `json:"offset"`
+		Limit  int `json:"limit"`
+		Count  int `json:"count"`
+		Items  []struct {
+			Created    responseTime `json:"created_at"`
+			TotalCount int          `json:"total_count"`
+			YourCount  int          `json:"your_count"`
+
+			Beer    rawBeer    `json:"beer"`
+			Brewery rawBrewery `json:"brewery"`
+		} `json:"items"`
+	} `json:"top_beers"`
 }
 
 // export creates an exported Venue from a rawVenue struct, allowing for
 // more useful structures to be created for client consumption.
 func (r *rawVenue) export() *Venue {
+	beers := make([]*Beer, r.TopBeers.Count)
+	for i := range r.TopBeers.Items {
+		beers[i] = r.TopBeers.Items[i].Beer.export()
+		beers[i].Brewery = r.TopBeers.Items[i].Brewery.export()
+	}
+
 	return &Venue{
 		ID:         r.ID,
 		Name:       r.Name,
@@ -73,5 +95,6 @@ func (r *rawVenue) export() *Venue {
 		Public:     r.Public,
 		Location:   r.Location,
 		Foursquare: r.Foursquare,
+		TopBeers:   beers,
 	}
 }
