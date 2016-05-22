@@ -81,6 +81,14 @@ func TestClientVenueInfoOK(t *testing.T) {
 	if c := v.Location.City; c != venueCity {
 		t.Fatalf("unexpected Location.City: %q != %q", c, venueCity)
 	}
+	foursquareID := "4a8f8efcf964a520761520e3"
+	if c := v.Foursquare.ID; c != foursquareID {
+		t.Fatalf("unexpected Foursquare.ID: %q != %q", c, foursquareID)
+	}
+	foursquareURL := "http://4sq.com/dheQpl"
+	if c := v.Foursquare.URL; c != foursquareURL {
+		t.Fatalf("unexpected Foursquare.URL: %q != %q", c, foursquareURL)
+	}
 }
 
 // venueInfoTestClient builds upon testClient, and adds additional sanity checks
@@ -123,6 +131,10 @@ var venueJSON = []byte(`
     "venue_name": "Bell's Eccentric Cafe & General Store",
     "location": {
       "venue_city": "Kalamazoo"
+    },
+    "foursquare": {
+      "foursquare_id": "4a8f8efcf964a520761520e3",
+      "foursquare_url": "http://4sq.com/dheQpl"
     }
   }
   }
