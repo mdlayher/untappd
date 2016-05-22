@@ -90,13 +90,19 @@ func TestClientVenueInfoOK(t *testing.T) {
 		t.Fatalf("unexpected Foursquare.URL: %q != %q", c, foursquareURL)
 	}
 
-	topBeerName := "Beer Name"
-	if c := v.TopBeers[0].Name; c != topBeerName {
-		t.Fatalf("unexpected TopBeers[0].Name: %q != %q", c, topBeerName)
+	beerName := "Beer Name"
+	if c := v.TopBeers[0].Name; c != beerName {
+		t.Fatalf("unexpected TopBeers[0].Name: %q != %q", c, beerName)
 	}
-	topBeerBrewery := "Brewery Name"
-	if c := v.TopBeers[0].Brewery.Name; c != topBeerBrewery {
-		t.Fatalf("unexpected TopBeers[0].Brewery.Name: %q != %q", c, topBeerBrewery)
+	beerBrewery := "Brewery Name"
+	if c := v.TopBeers[0].Brewery.Name; c != beerBrewery {
+		t.Fatalf("unexpected TopBeers[0].Brewery.Name: %q != %q", c, beerBrewery)
+	}
+	if c := v.Checkins[0].Beer.Name; c != beerName {
+		t.Fatalf("unexpected Checkins[0].Beer.Name: %q != %q", c, beerName)
+	}
+	if c := v.Checkins[0].Brewery.Name; c != beerBrewery {
+		t.Fatalf("unexpected Checkins[0].Brewery.Name: %q != %q", c, beerBrewery)
 	}
 }
 
@@ -154,6 +160,20 @@ var venueJSON = []byte(`
             "created_at": "Mon, 02 May 2016 00:48:33 +0000",
             "total_count": 1,
             "your_count": 0,
+            "beer": {
+              "beer_name": "Beer Name"
+            },
+            "brewery": {
+              "brewery_name": "Brewery Name"
+            }
+          }
+        ]
+      },
+      "checkins": {
+        "count": 1,
+        "items": [
+          {
+            "created_at": "Sat, 21 May 2016 00:15:40 +0000",
             "beer": {
               "beer_name": "Beer Name"
             },

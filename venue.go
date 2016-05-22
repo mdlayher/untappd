@@ -26,6 +26,9 @@ type Venue struct {
 
 	// Popular beers at this venue.
 	TopBeers []*Beer
+
+	// Checkins at this venue.
+	Checkins []*Checkin
 }
 
 // VenueService is a "service" which allows access to API methods involving
@@ -76,6 +79,10 @@ type rawVenue struct {
 			Brewery rawBrewery `json:"brewery"`
 		} `json:"items"`
 	} `json:"top_beers"`
+	Checkins struct {
+		Count int           `json:"count"`
+		Items []*rawCheckin `json:"items"`
+	} `json:"checkins"`
 }
 
 // export creates an exported Venue from a rawVenue struct, allowing for
@@ -87,6 +94,11 @@ func (r *rawVenue) export() *Venue {
 		beers[i].Brewery = r.TopBeers.Items[i].Brewery.export()
 	}
 
+	checkins := make([]*Checkin, r.Checkins.Count)
+	for i := range r.Checkins.Items {
+		checkins[i] = r.Checkins.Items[i].export()
+	}
+
 	return &Venue{
 		ID:         r.ID,
 		Name:       r.Name,
@@ -96,5 +108,6 @@ func (r *rawVenue) export() *Venue {
 		Location:   r.Location,
 		Foursquare: r.Foursquare,
 		TopBeers:   beers,
+		Checkins:   checkins,
 	}
 }
