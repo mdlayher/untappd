@@ -81,6 +81,29 @@ func TestClientVenueInfoOK(t *testing.T) {
 	if c := v.Location.City; c != venueCity {
 		t.Fatalf("unexpected Location.City: %q != %q", c, venueCity)
 	}
+	foursquareID := "4a8f8efcf964a520761520e3"
+	if c := v.Foursquare.ID; c != foursquareID {
+		t.Fatalf("unexpected Foursquare.ID: %q != %q", c, foursquareID)
+	}
+	foursquareURL := "http://4sq.com/dheQpl"
+	if c := v.Foursquare.URL; c != foursquareURL {
+		t.Fatalf("unexpected Foursquare.URL: %q != %q", c, foursquareURL)
+	}
+
+	beerName := "Beer Name"
+	if c := v.TopBeers[0].Name; c != beerName {
+		t.Fatalf("unexpected TopBeers[0].Name: %q != %q", c, beerName)
+	}
+	beerBrewery := "Brewery Name"
+	if c := v.TopBeers[0].Brewery.Name; c != beerBrewery {
+		t.Fatalf("unexpected TopBeers[0].Brewery.Name: %q != %q", c, beerBrewery)
+	}
+	if c := v.Checkins[0].Beer.Name; c != beerName {
+		t.Fatalf("unexpected Checkins[0].Beer.Name: %q != %q", c, beerName)
+	}
+	if c := v.Checkins[0].Brewery.Name; c != beerBrewery {
+		t.Fatalf("unexpected Checkins[0].Brewery.Name: %q != %q", c, beerBrewery)
+	}
 }
 
 // venueInfoTestClient builds upon testClient, and adds additional sanity checks
@@ -118,12 +141,48 @@ var venueJSON = []byte(`
   },
   "notifications": {},
   "response": {
-  "venue": {
-    "venue_id": 1021,
-    "venue_name": "Bell's Eccentric Cafe & General Store",
-    "location": {
-      "venue_city": "Kalamazoo"
+    "venue": {
+      "venue_id": 1021,
+      "venue_name": "Bell's Eccentric Cafe & General Store",
+      "location": {
+        "venue_city": "Kalamazoo"
+      },
+      "foursquare": {
+        "foursquare_id": "4a8f8efcf964a520761520e3",
+        "foursquare_url": "http://4sq.com/dheQpl"
+      },
+      "top_beers": {
+        "offset": 0,
+        "limit": 15,
+        "count": 1,
+        "items": [
+          {
+            "created_at": "Mon, 02 May 2016 00:48:33 +0000",
+            "total_count": 1,
+            "your_count": 0,
+            "beer": {
+              "beer_name": "Beer Name"
+            },
+            "brewery": {
+              "brewery_name": "Brewery Name"
+            }
+          }
+        ]
+      },
+      "checkins": {
+        "count": 1,
+        "items": [
+          {
+            "created_at": "Sat, 21 May 2016 00:15:40 +0000",
+            "beer": {
+              "beer_name": "Beer Name"
+            },
+            "brewery": {
+              "brewery_name": "Brewery Name"
+            }
+          }
+        ]
+      }
     }
-  }
   }
 }`)
