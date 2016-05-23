@@ -13,7 +13,7 @@ import (
 // TestNewAuthHandler verifies that NewAuthHandler returns appropriate errors
 // for various types of input parameters.
 func TestNewAuthHandler(t *testing.T) {
-	const badURL = "http://%a0.com"
+	const badURL = "http://%20.com"
 
 	var tests = []struct {
 		description  string
