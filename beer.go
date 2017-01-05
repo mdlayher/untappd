@@ -35,6 +35,10 @@ type Beer struct {
 	// Global Untappd rating for this beer.
 	OverallRating float64
 
+	// For beer search requests this is the global checkin count, for beer info
+	// requests this is the rating count.
+	OverallCount int
+
 	// If applicable, the specified user's rating for this beer.
 	UserRating float64
 
@@ -69,6 +73,7 @@ type rawBeer struct {
 	Created       responseTime `json:"created_at"`
 	WishList      bool         `json:"wish_list"`
 	OverallRating float64      `json:"rating_score"`
+	OverallCount  int          `json:"rating_count"`
 
 	// For /v4/beer/info/ID, brewery is located inside the rawBeer struct.
 	// This is not the case with /v4/user/beers/username, where it is
@@ -91,6 +96,7 @@ func (r *rawBeer) export() *Beer {
 		Created:       time.Time(r.Created),
 		WishList:      r.WishList,
 		OverallRating: r.OverallRating,
+		OverallCount:  r.OverallCount,
 	}
 
 	// If brewery was present inside the Beer struct, as is the case
