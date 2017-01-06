@@ -81,6 +81,10 @@ func TestClientBeerInfoOK(t *testing.T) {
 	if n := b.Brewery.Name; n != breweryName {
 		t.Fatalf("unexpected Brewery.Name: %q != %q", n, breweryName)
 	}
+	overallCount := 123
+	if c := b.OverallCount; c != overallCount {
+		t.Fatalf("unexpected OverallCount: %q != %q", c, overallCount)
+	}
 }
 
 // beerInfoTestClient builds upon testClient, and adds additional sanity checks
@@ -121,6 +125,7 @@ var blackNoteBeerJSON = []byte(`
   "beer": {
     "bid": 1,
     "beer_name": "Black Note Stout",
+    "rating_count": 123,
     "brewery": {
       "brewery_name": "Bell's Brewery, Inc."
     }

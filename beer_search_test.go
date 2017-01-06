@@ -85,6 +85,7 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 			Brewery: &Brewery{
 				Name: "Russian River Brewing Company",
 			},
+			OverallCount: 123,
 		},
 		&Beer{
 			ID:    2,
@@ -93,6 +94,7 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 			Brewery: &Brewery{
 				Name: "Russian River Brewing Company",
 			},
+			OverallCount: 456,
 		},
 	}
 
@@ -108,6 +110,9 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 		}
 		if beers[i].Brewery.Name != expected[i].Brewery.Name {
 			t.Fatalf("unexpected beer Brewery.Name: %q != %q", beers[i].Brewery.Name, expected[i].Brewery.Name)
+		}
+		if beers[i].OverallCount != expected[i].OverallCount {
+			t.Fatalf("unexpected beer OverallCount: %q != %q", beers[i].OverallCount, expected[i].OverallCount)
 		}
 	}
 }
@@ -151,6 +156,7 @@ var beerSearchJSON = []byte(`{
     "count": 2,
     "items": [
     {
+      "checkin_count": 123,
       "beer": {
         "bid": 1,
         "beer_name": "Pliny the Elder",
@@ -161,6 +167,7 @@ var beerSearchJSON = []byte(`{
       }
     },
     {
+      "checkin_count": 456,
       "beer": {
         "bid": 2,
         "beer_name": "Pliny the Younger",
