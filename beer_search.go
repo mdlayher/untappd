@@ -41,8 +41,9 @@ func (b *BeerService) SearchOffsetLimitSort(query string, offset int, limit int,
 			Beers struct {
 				Count int `json:"count"`
 				Items []struct {
-					Beer    rawBeer    `json:"beer"`
-					Brewery rawBrewery `json:"brewery"`
+					CheckinCount int        `json:"checkin_count"`
+					Beer         rawBeer    `json:"beer"`
+					Brewery      rawBrewery `json:"brewery"`
 				} `json:"items"`
 			} `json:"beers"`
 		} `json:"response"`
@@ -56,12 +57,13 @@ func (b *BeerService) SearchOffsetLimitSort(query string, offset int, limit int,
 
 	// Build result slice from struct
 	beers := make([]*Beer, v.Response.Beers.Count)
-	for i := range v.Response.Beers.Items {
+	for i, item := range v.Response.Beers.Items {
 		// Information about the beer itself
-		beers[i] = v.Response.Beers.Items[i].Beer.export()
+		beers[i] = item.Beer.export()
+		beers[i].OverallCount = item.CheckinCount
 
 		// Information about the beer's brewery
-		beers[i].Brewery = v.Response.Beers.Items[i].Brewery.export()
+		beers[i].Brewery = item.Brewery.export()
 	}
 
 	return beers, res, nil
