@@ -38,9 +38,10 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit in
 			Beers struct {
 				Count int `json:"count"`
 				Items []struct {
-					FirstHad   responseTime `json:"first_had"`
-					UserRating float64      `json:"rating_score"`
-					Count      int          `json:"count"`
+					FirstCheckin  responseTime `json:"first_created_at"`
+					RecentCheckin responseTime `json:"recent_created_at"`
+					UserRating    float64      `json:"rating_score"`
+					Count         int          `json:"count"`
 
 					Beer    rawBeer    `json:"beer"`
 					Brewery rawBrewery `json:"brewery"`
@@ -65,7 +66,8 @@ func (u *UserService) BeersOffsetLimitSort(username string, offset int, limit in
 		beers[i].Brewery = v.Response.Beers.Items[i].Brewery.export()
 
 		// Information related to this user and this beer
-		beers[i].FirstHad = time.Time(v.Response.Beers.Items[i].FirstHad)
+		beers[i].FirstHad = time.Time(v.Response.Beers.Items[i].FirstCheckin)
+		beers[i].RecentHad = time.Time(v.Response.Beers.Items[i].RecentCheckin)
 		beers[i].UserRating = v.Response.Beers.Items[i].UserRating
 		beers[i].Count = v.Response.Beers.Items[i].Count
 	}

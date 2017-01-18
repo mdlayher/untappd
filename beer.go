@@ -42,9 +42,10 @@ type Beer struct {
 	// If applicable, the specified user's rating for this beer.
 	UserRating float64
 
-	// If applicable, time when the specified user first checked in
-	// this beer.
-	FirstHad time.Time
+	// If applicable, time when the specified user first, or most recently
+	// checked in this beer.
+	FirstHad  time.Time
+	RecentHad time.Time
 
 	// If applicable, time when the specified user added this beer to
 	// their wish list.
