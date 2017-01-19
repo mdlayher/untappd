@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestClientUserBeersOK verifies that Client.User.Beers always sets the
@@ -81,17 +82,25 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 
 	expected := []*Beer{
 		&Beer{
-			ID:    1,
-			Name:  "Oberon Ale",
-			Style: "American Pale Wheat Ale",
+			ID:         1,
+			Name:       "Oberon Ale",
+			Style:      "American Pale Wheat Ale",
+			FirstHad:   time.Date(2016, 12, 26, 1, 2, 3, 0, time.FixedZone("-0500", -5*60*60)),
+			RecentHad:  time.Date(2016, 12, 31, 19, 48, 38, 0, time.FixedZone("-0500", -5*60*60)),
+			UserRating: 3.75,
+			Count:      1,
 			Brewery: &Brewery{
 				Name: "Bell's Brewery, Inc.",
 			},
 		},
 		&Beer{
-			ID:    2,
-			Name:  "Two Hearted Ale",
-			Style: "American IPA",
+			ID:         2,
+			Name:       "Two Hearted Ale",
+			Style:      "American IPA",
+			FirstHad:   time.Date(2016, 12, 26, 4, 5, 6, 0, time.FixedZone("-0500", -5*60*60)),
+			RecentHad:  time.Date(2016, 12, 27, 19, 48, 38, 0, time.FixedZone("-0500", -5*60*60)),
+			UserRating: 4.25,
+			Count:      1,
 			Brewery: &Brewery{
 				Name: "Bell's Brewery, Inc.",
 			},
@@ -110,6 +119,18 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 		}
 		if beers[i].Brewery.Name != expected[i].Brewery.Name {
 			t.Fatalf("unexpected beer Brewery.Name: %q != %q", beers[i].Brewery.Name, expected[i].Brewery.Name)
+		}
+		if !beers[i].FirstHad.Equal(expected[i].FirstHad) {
+			t.Fatalf("unexpected beer FirstHad: %q != %q", beers[i].FirstHad, expected[i].FirstHad)
+		}
+		if !beers[i].RecentHad.Equal(expected[i].RecentHad) {
+			t.Fatalf("unexpected beer RecentHad: %q != %q", beers[i].RecentHad, expected[i].RecentHad)
+		}
+		if beers[i].UserRating != expected[i].UserRating {
+			t.Fatalf("unexpected beer UserRating: %q != %q", beers[i].UserRating, expected[i].UserRating)
+		}
+		if beers[i].Count != expected[i].Count {
+			t.Fatalf("unexpected beer Count: %q != %q", beers[i].Count, expected[i].Count)
 		}
 	}
 }
@@ -153,6 +174,13 @@ var userBeersJSON = []byte(`{
     "count": 2,
     "items": [
     {
+      "first_checkin_id": 401400204,
+      "first_created_at": "Mon, 26 Dec 2016 01:02:03 -0500",
+      "recent_checkin_id": 401400204,
+      "recent_created_at": "Sat, 31 Dec 2016 19:48:38 -0500",
+      "recent_created_at_timezone": "-5",
+      "rating_score": 3.75,
+      "first_had": "Mon, 26 Dec 2016 01:02:03 -0500",
       "count": 1,
       "beer": {
         "bid": 1,
@@ -164,6 +192,13 @@ var userBeersJSON = []byte(`{
       }
     },
     {
+      "first_checkin_id": 401400204,
+      "first_created_at": "Mon, 26 Dec 2016 04:05:06 -0500",
+      "recent_checkin_id": 401400204,
+      "recent_created_at": "Tue, 27 Dec 2016 19:48:38 -0500",
+      "recent_created_at_timezone": "-5",
+      "rating_score": 4.25,
+      "first_had": "Mon, 26 Dec 2016 04:05:06 -0500",
       "count": 1,
       "beer": {
         "bid": 2,
