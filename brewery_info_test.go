@@ -81,6 +81,18 @@ func TestClientBreweryInfoOK(t *testing.T) {
 	if n := b.Slug; n != brewerySlug {
 		t.Fatalf("unexpected Brewery.Slug: %q != %q", n, brewerySlug)
 	}
+	breweryType := "Micro Brewery"
+	if n := b.Type; n != breweryType {
+		t.Fatalf("unexpected Brewery.Type: %q != %q", n, breweryType)
+	}
+	breweryTypeID := 2
+	if n := b.TypeID; n != breweryTypeID {
+		t.Fatalf("unexpected Brewery.TypeID: %q != %q", n, breweryTypeID)
+	}
+	breweryContactTwitter := "BellsBrewery"
+	if n := b.Contact.Twitter; n != breweryContactTwitter {
+		t.Fatalf("unexpected Brewery.TypeID: %q != %q", n, breweryContactTwitter)
+	}
 }
 
 // breweryInfoTestClient builds upon testClient, and adds additional sanity checks
@@ -118,10 +130,17 @@ var bellsBreweryJSON = []byte(`
   },
   "notifications": {},
   "response": {
-  "brewery": {
-    "brewery_id": 1,
-    "brewery_name": "Bell's Brewery, Inc.",
-	"brewery_slug": "bells-brewery-inc"
-  }
+    "brewery": {
+      "brewery_id": 1,
+      "brewery_name": "Bell's Brewery, Inc.",
+      "brewery_slug": "bells-brewery-inc",
+      "brewery_type": "Micro Brewery",
+      "brewery_type_id": 2,
+      "contact": {
+        "twitter": "BellsBrewery",
+        "facebook": "",
+        "url": ""
+      }
+    }
   }
 }`)
