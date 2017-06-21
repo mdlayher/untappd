@@ -18,6 +18,9 @@ type Brewery struct {
 	Country  string
 	Active   bool
 	Location BreweryLocation
+	Contact  BreweryContact
+	Type     string
+	TypeID   int
 }
 
 // BreweryLocation represent's an Untappd brewery's location, and contains
@@ -27,6 +30,15 @@ type BreweryLocation struct {
 	State     string  `json:"brewery_state"`
 	Latitude  float64 `json:"lat"`
 	Longitude float64 `json:"lng"`
+}
+
+// BreweryContact represents an Untappd brewery's contact social media
+// and website contact information.
+type BreweryContact struct {
+	Twitter   string `json:"twitter"`
+	Facebook  string `json:"facebook"`
+	Instagram string `json:"instagram"`
+	URL       string `json:"url"`
 }
 
 // rawBrewery is the raw JSON representation of an Untappd brewery.  Its data is
@@ -39,6 +51,9 @@ type rawBrewery struct {
 	Country  string          `json:"country_name"`
 	Active   responseBool    `json:"brewery_active"`
 	Location BreweryLocation `json:"location"`
+	Contact  BreweryContact  `json:"contact"`
+	Type     string          `json:"brewery_type"`
+	TypeID   int             `json:"brewery_type_id"`
 }
 
 // export creates an exported Brewery from a rawBrewery struct, allowing for
@@ -52,5 +67,8 @@ func (r *rawBrewery) export() *Brewery {
 		Country:  r.Country,
 		Active:   bool(r.Active),
 		Location: r.Location,
+		Contact:  r.Contact,
+		Type:     r.Type,
+		TypeID:   r.TypeID,
 	}
 }
