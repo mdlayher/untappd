@@ -1,4 +1,4 @@
-untappd [![Build Status](https://travis-ci.org/mdlayher/untappd.svg?branch=master)](https://travis-ci.org/mdlayher/untappd) [![Coverage Status](https://coveralls.io/repos/mdlayher/untappd/badge.svg?branch=master)](https://coveralls.io/r/mdlayher/untappd?branch=master) [![GoDoc](http://godoc.org/github.com/mdlayher/untappd?status.svg)](http://godoc.org/github.com/mdlayher/untappd)
+untappd [![Build Status](https://travis-ci.org/mdlayher/untappd.svg?branch=master)](https://travis-ci.org/mdlayher/untappd) [![GoDoc](https://godoc.org/github.com/mdlayher/untappd?status.svg)](https://godoc.org/github.com/mdlayher/untappd) [![Go Report Card](https://goreportcard.com/badge/github.com/mdlayher/untappd)](https://goreportcard.com/report/github.com/mdlayher/untappd)
 =======
 
 Package untappd provides an Untappd APIv4 client, written in Go.  MIT Licensed.
