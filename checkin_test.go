@@ -66,16 +66,16 @@ func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
 			t.Fatalf("unexpected checkin Toast.ID: %d != %d", checkins[i].Toasts[0].ID, expected[i].Toasts[0].ID)
 		}
 		if checkins[i].Toasts[0].User.UserName != expected[i].Toasts[0].User.UserName {
-			t.Fatalf("unexpected checkin Toast.User.UserName: %d != %d", checkins[i].Toasts[0].User.UserName, expected[i].Toasts[0].User.UserName)
+			t.Fatalf("unexpected checkin Toast.User.UserName: %q != %q", checkins[i].Toasts[0].User.UserName, expected[i].Toasts[0].User.UserName)
 		}
 		if checkins[i].Comments[0].ID != expected[i].Comments[0].ID {
 			t.Fatalf("unexpected checkin Toast.ID: %d != %d", checkins[i].Comments[0].ID, expected[i].Comments[0].ID)
 		}
 		if checkins[i].Comments[0].Comment != expected[i].Comments[0].Comment {
-			t.Fatalf("unexpected checkin Toast.Comment: %d != %d", checkins[i].Comments[0].Comment, expected[i].Comments[0].Comment)
+			t.Fatalf("unexpected checkin Toast.Comment: %q != %q", checkins[i].Comments[0].Comment, expected[i].Comments[0].Comment)
 		}
 		if checkins[i].Comments[0].User.UserName != expected[i].Comments[0].User.UserName {
-			t.Fatalf("unexpected checkin Toast.User.UserName: %d != %d", checkins[i].Comments[0].User.UserName, expected[i].Comments[0].User.UserName)
+			t.Fatalf("unexpected checkin Toast.User.UserName: %q != %q", checkins[i].Comments[0].User.UserName, expected[i].Comments[0].User.UserName)
 		}
 	}
 }

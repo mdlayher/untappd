@@ -49,7 +49,7 @@ type VenueLocation struct {
 	Longitude float64 `json:"lng"`
 }
 
-// VenueLocation represents an Untappd venu's Foursquare data, and contains
+// VenueFoursquare represents an Untappd venue's Foursquare data, and contains
 // the venue's Foursquare ID and URL.
 type VenueFoursquare struct {
 	ID  string `json:"foursquare_id"`

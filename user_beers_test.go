@@ -127,7 +127,7 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 			t.Fatalf("unexpected beer RecentHad: %q != %q", beers[i].RecentHad, expected[i].RecentHad)
 		}
 		if beers[i].UserRating != expected[i].UserRating {
-			t.Fatalf("unexpected beer UserRating: %q != %q", beers[i].UserRating, expected[i].UserRating)
+			t.Fatalf("unexpected beer UserRating: %f != %f", beers[i].UserRating, expected[i].UserRating)
 		}
 		if beers[i].Count != expected[i].Count {
 			t.Fatalf("unexpected beer Count: %q != %q", beers[i].Count, expected[i].Count)
