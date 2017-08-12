@@ -356,7 +356,7 @@ func (c *Client) getCheckins(endpoint string, q url.Values) ([]*Checkin, *http.R
 // encountered.
 func checkResponse(res *http.Response) error {
 	// Ensure correct content type
-	if cType := res.Header.Get("Content-Type"); strings.HasPrefix(cType, jsonContentType) {
+	if cType := res.Header.Get("Content-Type"); !strings.HasPrefix(cType, jsonContentType) {
 		return fmt.Errorf("expected %s content type, but received %s", jsonContentType, cType)
 	}
 
