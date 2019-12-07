@@ -1,6 +1,7 @@
 package untappd
 
 import (
+	"net/url"
 	"time"
 )
 
@@ -43,6 +44,20 @@ type Checkin struct {
 
 	// Comments by Untappd users about this checkin.
 	Comments []*Comment
+
+	// Media uploaded by Untappd users about this checkin
+	// If the slice has zero length, no media exists for this checkin.
+	Media []*CheckinMedia
+}
+
+// CheckinMedia contains links to media regarding a Checkin.  Included are links
+// to a small, medium, large, and original photos for a given Checkin.
+type CheckinMedia struct {
+	PhotoID       int
+	SmallPhoto    url.URL
+	MediumPhoto   url.URL
+	LargePhoto    url.URL
+	OriginalPhoto url.URL
 }
 
 // rawCheckin is the raw JSON representation of an Untappd checkin.  Its data is
@@ -71,6 +86,33 @@ type rawCheckin struct {
 		Count int           `json:"count"`
 		Items []*rawComment `json:"items"`
 	} `json:"comments"`
+
+	Media struct {
+		Count int                `json:"count"`
+		Items []*rawCheckinMedia `json:"items"`
+	} `json:"media"`
+}
+
+type rawCheckinMedia struct {
+	PhotoID int `json:"photo_id"`
+	Photo   struct {
+		SmallPhoto    responseURL `json:"photo_img_sm"`
+		MediumPhoto   responseURL `json:"photo_img_med"`
+		LargePhoto    responseURL `json:"photo_img_lg"`
+		OriginalPhoto responseURL `json:"photo_img_og"`
+	} `json:"photo"`
+}
+
+// export creates an exported CheckinMedia from a rawCheckinMedia struct, allowing
+// for more useful structures to be created for client consumption.
+func (r *rawCheckinMedia) export() *CheckinMedia {
+	return &CheckinMedia{
+		PhotoID:       r.PhotoID,
+		SmallPhoto:    url.URL(r.Photo.SmallPhoto),
+		MediumPhoto:   url.URL(r.Photo.MediumPhoto),
+		LargePhoto:    url.URL(r.Photo.LargePhoto),
+		OriginalPhoto: url.URL(r.Photo.OriginalPhoto),
+	}
 }
 
 // export creates an exported Checkin from a rawCheckin struct, allowing for more
@@ -110,6 +152,12 @@ func (r *rawCheckin) export() *Checkin {
 		comments[i] = r.Comments.Items[i].export()
 	}
 	c.Comments = comments
+
+	media := make([]*CheckinMedia, r.Media.Count)
+	for i := range r.Media.Items {
+		media[i] = r.Media.Items[i].export()
+	}
+	c.Media = media
 
 	return c
 }
