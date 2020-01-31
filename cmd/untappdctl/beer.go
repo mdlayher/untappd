@@ -10,12 +10,12 @@ import (
 
 // beerCommand allows access to untappd.Client.Beer methods, such as beer
 // information by ID, and query by search term.
-func beerCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.StringFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func beerCommand(offsetFlag, limitFlag *cli.IntFlag, sortFlag *cli.StringFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "beer",
 		Aliases: []string{"be"},
 		Usage:   "query for beer information, by beer ID or name",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			beerCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 			beerInfoCommand(),
 			beerSearchCommand(offsetFlag, limitFlag, sortFlag),
@@ -25,8 +25,8 @@ func beerCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.Str
 
 // beerCheckinsCommand allows access to the untappd.Client.Beer.Checkins method, which
 // can query for information about recent checkins for a beer, by ID.
-func beerCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func beerCheckinsCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "checkins",
 		Aliases: []string{"c"},
 		Usage:   "query for recent checkins for a beer, by ID",
@@ -36,7 +36,7 @@ func beerCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag
 			maxIDFlag,
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "beer ID"))
 			checkAtoiError(err)
@@ -59,19 +59,20 @@ func beerCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag
 
 			// Print out checkins in human-readable format
 			printCheckins(checkins)
+			return nil
 		},
 	}
 }
 
 // beerInfoCommand allows access to the untappd.Client.Beer.Info method, which
 // can query for information about a beer, by ID.
-func beerInfoCommand() cli.Command {
-	return cli.Command{
+func beerInfoCommand() *cli.Command {
+	return &cli.Command{
 		Name:    "info",
 		Aliases: []string{"i"},
 		Usage:   "query for beer information, by ID",
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "beer ID"))
 			checkAtoiError(err)
@@ -86,14 +87,15 @@ func beerInfoCommand() cli.Command {
 
 			// Print out beer in human-readable format
 			printBeers([]*untappd.Beer{beer})
+			return nil
 		},
 	}
 }
 
 // beerSearchCommand allows access to the untappd.Client.Beer.Search method, which
 // can search for information about beers, by search term.
-func beerSearchCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag cli.StringFlag) cli.Command {
-	return cli.Command{
+func beerSearchCommand(offsetFlag, limitFlag *cli.IntFlag, sortFlag *cli.StringFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "search",
 		Aliases: []string{"s"},
 		Usage:   "search for beers, by brewery and/or beer name",
@@ -102,7 +104,7 @@ func beerSearchCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag c
 			limitFlag,
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			offset, limit, sort := offsetLimitSort(ctx)
 
 			// Query for beer's earned beers by name, e.g.
@@ -121,6 +123,7 @@ func beerSearchCommand(offsetFlag cli.IntFlag, limitFlag cli.IntFlag, sortFlag c
 
 			// Print out beers in human-readable format
 			printBeers(beers)
+			return nil
 		},
 	}
 }

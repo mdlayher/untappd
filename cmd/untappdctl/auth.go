@@ -15,12 +15,12 @@ import (
 
 // authCommand allows a user to easily authenticate to the Untappd APIv4, and
 // perform actions which require authentication, such as checking in beers.
-func authCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func authCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "auth",
 		Aliases: []string{"a"},
 		Usage:   "access authenticated Untappd APIv4 methods",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			authCheckinCommand(),
 			authCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 			authLoginCommand(),
@@ -30,22 +30,22 @@ func authCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.Int
 
 // authCheckinCommand allows access to the untappd.Client.Beer.Checkin method, which
 // can check in a beer, by ID.
-func authCheckinCommand() cli.Command {
-	return cli.Command{
+func authCheckinCommand() *cli.Command {
+	return &cli.Command{
 		Name:  "checkin",
 		Usage: "[auth] check-in a beer, by ID",
 		Flags: []cli.Flag{
-			cli.Float64Flag{
+			&cli.Float64Flag{
 				Name:  "rating",
 				Usage: "optional rating, 0.5-5.0, for this checkin",
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "comment",
 				Usage: "optional comment for this checkin",
 			},
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "beer ID"))
 			checkAtoiError(err)
@@ -72,14 +72,15 @@ func authCheckinCommand() cli.Command {
 
 			// Print out checkin in human-readable format
 			printCheckins([]*untappd.Checkin{checkin})
+			return nil
 		},
 	}
 }
 
 // authCheckinsCommand allows access to the untappd.Client.Beer.Checkins method, which
 // can query for information about recent checkins for a beer, by ID.
-func authCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func authCheckinsCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:  "checkins",
 		Usage: "[auth] query for recent checkins from friends",
 		Flags: []cli.Flag{
@@ -88,7 +89,7 @@ func authCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag
 			maxIDFlag,
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Query for checkins by beername, e.g.
 			// "untappdctl beer checkins mdlayher"
 			c := untappdClient(ctx)
@@ -104,19 +105,20 @@ func authCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag
 
 			// Print out checkins in human-readable format
 			printCheckins(checkins)
+			return nil
 		},
 	}
 }
 
 // authLoginCommand performs the OAuth Authentication process required to retrieve
 // an Access Token for the Untappd APIv4.
-func authLoginCommand() cli.Command {
-	return cli.Command{
+func authLoginCommand() *cli.Command {
+	return &cli.Command{
 		Name:    "login",
 		Aliases: []string{"l"},
 		Usage:   "authenticate using OAuth to Untappd APIv4",
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// 8338 looks kinda like "BEER", right?
 			const host = ":8338"
 
@@ -130,7 +132,7 @@ func authLoginCommand() cli.Command {
 			}
 
 			// Wait for a single token to arrive, then cancel listener
-			doneC := make(chan struct{}, 0)
+			doneC := make(chan struct{})
 
 			// Handle response token by providing to to both HTTP response
 			// and terminal output
@@ -150,8 +152,8 @@ func authLoginCommand() cli.Command {
 			// Set up http.Handler which allows easy OAuth authentication
 			// with Untappd APIv4
 			h, clientURL, err := untappd.NewAuthHandler(
-				ctx.GlobalString("client_id"),
-				ctx.GlobalString("client_secret"),
+				ctx.String("client_id"),
+				ctx.String("client_secret"),
 				redirectURL,
 				tokenFn,
 				nil,
@@ -177,6 +179,7 @@ func authLoginCommand() cli.Command {
 
 			// Block until one authentication completes
 			<-doneC
+			return nil
 		},
 	}
 }

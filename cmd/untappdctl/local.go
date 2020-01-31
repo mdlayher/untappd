@@ -12,12 +12,12 @@ import (
 
 // localCommand allows access to untappd.Client.Local methods, such as local
 // checkins by latitude and longitude.
-func localCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func localCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "local",
 		Aliases: []string{"l"},
 		Usage:   "query for local area checkins, by latitude and longitude",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			localCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 		},
 	}
@@ -26,8 +26,8 @@ func localCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.In
 // localCheckinsCommand allows access to the untappd.Client.Local.Checkins method, which
 // can query for information about recent checkins for a local area, by latitude, longitude,
 // and several other parameters.
-func localCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func localCheckinsCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "checkins",
 		Aliases: []string{"c"},
 		Usage:   "query for recent checkins for a local area, by latitude and longitude",
@@ -35,19 +35,19 @@ func localCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFla
 			limitFlag,
 			minIDFlag,
 			maxIDFlag,
-			cli.IntFlag{
+			&cli.IntFlag{
 				Name:  "radius",
 				Value: 25,
 				Usage: "checkin radius around latitude,longitude pair",
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "unit",
 				Value: string(untappd.DistanceMiles),
 				Usage: fmt.Sprintf("units for radius, either %q or %q", untappd.DistanceMiles, untappd.DistanceKilometers),
 			},
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid latitude and longitude pair
 			pair := strings.Split(mustStringArg(ctx, "latitude,longitude pair"), ",")
 			if len(pair) != 2 {
@@ -87,6 +87,7 @@ func localCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFla
 
 			// Print out checkins in human-readable format
 			printCheckins(checkins)
+			return nil
 		},
 	}
 }
