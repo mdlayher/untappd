@@ -23,8 +23,8 @@ func main() {
 	app.Name = appName
 	app.Usage = "query and display information from Untappd APIv4"
 	app.Version = "0.0.1"
-	app.Authors = []cli.Author{
-		cli.Author{
+	app.Authors = []*cli.Author{
+		&cli.Author{
 			Name:  "Matt Layher",
 			Email: "mdlayher@gmail.com",
 		},
@@ -33,55 +33,55 @@ func main() {
 	// Add global flags for Untappd API client ID, client secret, and
 	// authenticated access token
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "client_id",
-			Usage:  "client ID parameter for Untappd APIv4",
-			EnvVar: "UNTAPPD_ID",
+		&cli.StringFlag{
+			Name:    "client_id",
+			Usage:   "client ID parameter for Untappd APIv4",
+			EnvVars: []string{"UNTAPPD_ID"},
 		},
-		cli.StringFlag{
-			Name:   "client_secret",
-			Usage:  "client secret parameter for Untappd APIv4",
-			EnvVar: "UNTAPPD_SECRET",
+		&cli.StringFlag{
+			Name:    "client_secret",
+			Usage:   "client secret parameter for Untappd APIv4",
+			EnvVars: []string{"UNTAPPD_SECRET"},
 		},
-		cli.StringFlag{
-			Name:   "access_token",
-			Usage:  "authenticated access token for Untappd APIv4",
-			EnvVar: "UNTAPPD_TOKEN",
+		&cli.StringFlag{
+			Name:    "access_token",
+			Usage:   "authenticated access token for Untappd APIv4",
+			EnvVars: []string{"UNTAPPD_TOKEN"},
 		},
 	}
 
 	// Frequently used flags for paging and sorting results, with their
 	// default Untappd API values
-	offsetFlag := cli.IntFlag{
+	offsetFlag := &cli.IntFlag{
 		Name:  "offset",
 		Value: 0,
 		Usage: "starting offset for API query results",
 	}
-	limitFlag := cli.IntFlag{
+	limitFlag := &cli.IntFlag{
 		Name:  "limit",
 		Value: 25,
 		Usage: "maximum number of API query results",
 	}
-	sortFlag := cli.StringFlag{
+	sortFlag := &cli.StringFlag{
 		Name:  "sort",
 		Value: string(untappd.SortDate),
 		Usage: fmt.Sprintf("sort type for API query results (options: %s)", untappd.Sorts()),
 	}
 
 	// Flags used to specify minimum and maximum checkin IDs
-	minIDFlag := cli.IntFlag{
+	minIDFlag := &cli.IntFlag{
 		Name:  "min_id",
 		Value: 0,
 		Usage: "minimum checkin ID for API query results",
 	}
-	maxIDFlag := cli.IntFlag{
+	maxIDFlag := &cli.IntFlag{
 		Name:  "max_id",
 		Value: math.MaxInt32,
 		Usage: "maximum checkin ID for API query results",
 	}
 
 	// Add commands mirroring available untappd.Client services
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		authCommand(limitFlag, minIDFlag, maxIDFlag),
 		beerCommand(offsetFlag, limitFlag, sortFlag, minIDFlag, maxIDFlag),
 		breweryCommand(offsetFlag, limitFlag, minIDFlag, maxIDFlag),
@@ -105,13 +105,13 @@ func untappdClient(ctx *cli.Context) *untappd.Client {
 	var err error
 
 	// Always prefer authenticated access token, if available
-	token := ctx.GlobalString("access_token")
+	token := ctx.String("access_token")
 	if token != "" {
 		c, err = untappd.NewAuthenticatedClient(token, nil)
 	} else {
 		c, err = untappd.NewClient(
-			ctx.GlobalString("client_id"),
-			ctx.GlobalString("client_secret"),
+			ctx.String("client_id"),
+			ctx.String("client_secret"),
 			nil,
 		)
 	}

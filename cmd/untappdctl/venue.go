@@ -10,12 +10,12 @@ import (
 
 // venueCommand allows access to untappd.Client.Venue methods, such as venue
 // information by ID.
-func venueCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func venueCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "venue",
 		Aliases: []string{"v"},
 		Usage:   "query for venue information, by venue ID",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			venueCheckinsCommand(limitFlag, minIDFlag, maxIDFlag),
 			venueInfoCommand(),
 		},
@@ -24,8 +24,8 @@ func venueCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.In
 
 // venueCheckinsCommand allows access to the untappd.Client.Venue.Checkins method, which
 // can query for information about recent checkins at a specified venue, by ID.
-func venueCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFlag cli.IntFlag) cli.Command {
-	return cli.Command{
+func venueCheckinsCommand(limitFlag, minIDFlag, maxIDFlag *cli.IntFlag) *cli.Command {
+	return &cli.Command{
 		Name:    "checkins",
 		Aliases: []string{"c"},
 		Usage:   "query for recent checkins at a specified venue, by ID",
@@ -35,7 +35,7 @@ func venueCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFla
 			maxIDFlag,
 		},
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "venue ID"))
 			checkAtoiError(err)
@@ -58,19 +58,20 @@ func venueCheckinsCommand(limitFlag cli.IntFlag, minIDFlag cli.IntFlag, maxIDFla
 
 			// Print out checkins in human-readable format
 			printCheckins(checkins)
+			return nil
 		},
 	}
 }
 
 // venueInfoCommand allows access to the untappd.Client.Venue.Info method, which
 // can query for information about a venue, by ID.
-func venueInfoCommand() cli.Command {
-	return cli.Command{
+func venueInfoCommand() *cli.Command {
+	return &cli.Command{
 		Name:    "info",
 		Aliases: []string{"i"},
 		Usage:   "query for venue information, by ID",
 
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			// Check for valid integer ID
 			id, err := strconv.Atoi(mustStringArg(ctx, "venue ID"))
 			checkAtoiError(err)
@@ -85,6 +86,7 @@ func venueInfoCommand() cli.Command {
 
 			// Print out venue in human-readable format
 			printVenues([]*untappd.Venue{venue})
+			return nil
 		},
 	}
 }
