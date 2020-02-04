@@ -58,8 +58,8 @@ func (l *LocalService) Checkins(latitude float64, longitude float64) ([]*Checkin
 func (l *LocalService) CheckinsMinMaxIDLimitRadius(r LocalCheckinsRequest) ([]*Checkin, *http.Response, error) {
 	// Add required parameters
 	q := url.Values{
-		"lat": []string{formatFloat(r.Latitude)},
-		"lng": []string{formatFloat(r.Longitude)},
+		"lat": []string{FormatFloat(r.Latitude)},
+		"lng": []string{FormatFloat(r.Longitude)},
 	}
 
 	// Add optional parameters, if not empty

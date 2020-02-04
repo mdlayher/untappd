@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"math"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientAuthCheckinsOK verifies that Client.Auth.Checkins always sets the
@@ -69,7 +71,7 @@ func TestClientAuthCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
 
 // authCheckinTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the Activity Feed API.
-func authCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func authCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

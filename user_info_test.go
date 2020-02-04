@@ -1,10 +1,12 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientUserInfoBadUser verifies that Client.User.Info returns an error when
@@ -78,7 +80,7 @@ func TestClientUserInfoOK(t *testing.T) {
 
 // userInfoTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user info API.
-func userInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func userInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

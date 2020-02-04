@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientBreweryInfoBadBrewery verifies that Client.Brewery.Info returns an error when
@@ -97,7 +99,7 @@ func TestClientBreweryInfoOK(t *testing.T) {
 
 // breweryInfoTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the brewery info API.
-func breweryInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func breweryInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientUserFriendsOK verifies that Client.User.Friends always sets the
@@ -73,12 +75,12 @@ func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*User{
-		&User{
+	expected := []*untappd.User{
+		&untappd.User{
 			UID:      123456,
 			UserName: "XXXXXX",
 		},
-		&User{
+		&untappd.User{
 			UID:      789123,
 			UserName: "YYYYYY",
 		},
@@ -96,7 +98,7 @@ func TestClientUserFriendsOffsetLimitOK(t *testing.T) {
 
 // userFriendsTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user friends API.
-func userFriendsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func userFriendsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

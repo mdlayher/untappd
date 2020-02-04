@@ -35,7 +35,7 @@ type AuthHandler struct {
 	redirectURL  *url.URL
 	oAuthURL     *url.URL
 	handler      TokenHandlerFunc
-	client       *http.Client
+	client       HTTPClient
 }
 
 // TokenHandlerFunc is a function which is invoked at the end of a successful
@@ -75,8 +75,7 @@ var defaultTokenFn = func(token string, w http.ResponseWriter, r *http.Request) 
 // obeys timeouts, etc.  This client is used to communicate with an upstream
 // OAuth authentication server.  If no http.Client is provided, http.DefaultClient
 // will be used.
-func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn TokenHandlerFunc, client *http.Client) (*AuthHandler, *url.URL, error) {
-	// Disallow empty ID and secret
+func NewAuthHandler(clientID, clientSecret, redirectURL string, fn TokenHandlerFunc, client HTTPClient) (*AuthHandler, *url.URL, error) {
 	if clientID == "" {
 		return nil, nil, ErrNoClientID
 	}
@@ -84,13 +83,11 @@ func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn
 		return nil, nil, ErrNoClientSecret
 	}
 
-	// Validate user redirect URL
 	ru, err := url.Parse(redirectURL)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Validate client authentication URL
 	cu, err := url.Parse(fmt.Sprintf(
 		untappdOAuthAuthenticate,
 		clientID,
@@ -100,7 +97,6 @@ func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn
 		return nil, nil, err
 	}
 
-	// Validate OAuth URL
 	ou, err := url.Parse(fmt.Sprintf(
 		untappdOAuthAuthorize,
 		clientID,
@@ -111,12 +107,10 @@ func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn
 		return nil, nil, err
 	}
 
-	// If no token handler is set, use default
 	if fn == nil {
 		fn = defaultTokenFn
 	}
 
-	// If no client set, use http.DefaultClient
 	if client == nil {
 		client = http.DefaultClient
 	}
@@ -135,21 +129,17 @@ func NewAuthHandler(clientID string, clientSecret string, redirectURL string, fn
 // can properly authenticate using the Server Side Authentication method outlined
 // in Untappd documentation: https://untappd.com/api/docs#authentication.
 func (a *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Verify correct HTTP method
 	if r.Method != "GET" {
 		http.Error(w, "only GET requests are allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Verify non-empty code parameter
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "no 'code' GET parameter", http.StatusBadRequest)
 		return
 	}
 
-	// Perform HTTP GET request to retrieve token using the
-	// code provided from query parameter
 	res, err := a.client.Get(a.oAuthURL.String() + "&code=" + code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -157,32 +147,26 @@ func (a *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer res.Body.Close()
 
-	// Verify authentication server did not return an error
 	if c := res.StatusCode; c > 299 || c < 200 {
 		http.Error(w, fmt.Sprintf("authentication server error: HTTP %03d", c), http.StatusBadGateway)
 		return
 	}
 
-	// Verify authentication server returned JSON
-	if !strings.Contains(res.Header.Get("Content-Type"), jsonContentType) {
+	if !strings.Contains(res.Header.Get("Content-Type"), JSONContentType) {
 		http.Error(w, "authentication server sent non-JSON content", http.StatusBadGateway)
 		return
 	}
 
-	// Temporary struct for JSON body
 	var v struct {
 		Response struct {
 			AccessToken string `json:"access_token"`
 		} `json:"response"`
 	}
 
-	// Decode JSON body to retrieve token
 	if err := json.NewDecoder(res.Body).Decode(&v); err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 		return
 	}
 
-	// Invoke TokenHandlerFunc to provide easy access to the generated token,
-	// so the client can do whatever they please with it
 	a.handler(v.Response.AccessToken, w, r)
 }

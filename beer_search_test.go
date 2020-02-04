@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientBeerSearchOK verifies that Client.Beer.Search always sets the
@@ -44,7 +46,7 @@ func TestClientBeerSearchOffsetLimitBadQuery(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.Beer.SearchOffsetLimitSort("", 0, 25, SortDate)
+	_, _, err := c.Beer.SearchOffsetLimitSort("", 0, 25, untappd.SortDate)
 	assertInvalidQueryErr(t, err)
 }
 
@@ -57,7 +59,7 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
-	var sort = SortDate
+	var sort = untappd.SortDate
 
 	query := "russian river pliny"
 	c, done := beerSearchTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
@@ -77,21 +79,21 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Beer{
-		&Beer{
+	expected := []*untappd.Beer{
+		&untappd.Beer{
 			ID:    1,
 			Name:  "Pliny the Elder",
 			Style: "Imperial / Double IPA",
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Russian River Brewing Company",
 			},
 			OverallCount: 123,
 		},
-		&Beer{
+		&untappd.Beer{
 			ID:    2,
 			Name:  "Pliny the Younger",
 			Style: "Triple IPA",
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Russian River Brewing Company",
 			},
 			OverallCount: 456,
@@ -119,7 +121,7 @@ func TestClientBeerSearchOffsetLimitOK(t *testing.T) {
 
 // beerSearchTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user beers API.
-func beerSearchTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func beerSearchTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"math"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientVenueCheckinsOK verifies that Client.Venue.Checkins always sets the
@@ -90,7 +92,7 @@ func TestClientVenueCheckinsMinMaxIDLimitOffsetLimitOK(t *testing.T) {
 
 // venueCheckinsTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the venue checkin API.
-func venueCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func venueCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

@@ -1,30 +1,31 @@
-package untappd
+package untappd_test
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+
+	"github.com/mdlayher/untappd"
+)
 
 // TestSorts verifies that every Sort type is present in the output of Sorts.
 func TestSorts(t *testing.T) {
-	for _, s := range []Sort{
-		SortDate,
-		SortCheckin,
-		SortHighestRated,
-		SortLowestRated,
-		SortUserHighestRated,
-		SortUserLowestRated,
-		SortHighestABV,
-		SortLowestABV,
+	for _, s := range []untappd.Sort{
+		untappd.SortDate,
+		untappd.SortCheckin,
+		untappd.SortHighestRated,
+		untappd.SortLowestRated,
+		untappd.SortUserHighestRated,
+		untappd.SortUserLowestRated,
+		untappd.SortHighestABV,
+		untappd.SortLowestABV,
 	} {
-		var found bool
-		for _, ss := range Sorts() {
-			if s == ss {
-				found = true
-				break
+		t.Run(fmt.Sprintf("%q", s), func(t *testing.T) {
+			for _, ss := range untappd.Sorts() {
+				if s == ss {
+					return
+				}
 			}
-		}
-		if found {
-			continue
-		}
-
-		t.Fatalf("unknown Sort type: %q", s)
+			t.Fatalf("unknown Sort type: %q", s)
+		})
 	}
 }

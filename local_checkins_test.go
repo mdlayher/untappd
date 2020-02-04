@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"math"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientLocalCheckinsOK verifies that Client.Local.Checkins always sets the
@@ -16,7 +18,7 @@ func TestClientLocalCheckinsOK(t *testing.T) {
 	lng := "0"
 	limit := "25"
 	radius := "25"
-	distance := DistanceMiles
+	distance := untappd.DistanceMiles
 
 	c, done := localCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		assertParameters(t, r, url.Values{
@@ -47,7 +49,7 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusBadLocal(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.Local.CheckinsMinMaxIDLimitRadius(LocalCheckinsRequest{
+	_, _, err := c.Local.CheckinsMinMaxIDLimitRadius(untappd.LocalCheckinsRequest{
 		Latitude:  0.0,
 		Longitude: 0.0,
 	})
@@ -58,10 +60,10 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusBadLocal(t *testing.T) {
 // returns a valid checkins list, when used with correct parameters.
 func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	var lat = 1.00
-	sLat := formatFloat(lat)
+	sLat := untappd.FormatFloat(lat)
 
 	var lng = -1.00
-	sLng := formatFloat(lng)
+	sLng := untappd.FormatFloat(lng)
 
 	var minID = 1
 	sMinID := strconv.Itoa(minID)
@@ -75,7 +77,7 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	var radius = 25
 	sRadius := strconv.Itoa(radius)
 
-	var distance = DistanceMiles
+	var distance = untappd.DistanceMiles
 
 	c, done := localCheckinsTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		assertParameters(t, r, url.Values{
@@ -94,7 +96,7 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 	})
 	defer done()
 
-	checkins, _, err := c.Local.CheckinsMinMaxIDLimitRadius(LocalCheckinsRequest{
+	checkins, _, err := c.Local.CheckinsMinMaxIDLimitRadius(untappd.LocalCheckinsRequest{
 		Latitude:  lat,
 		Longitude: lng,
 
@@ -116,7 +118,7 @@ func TestClientLocalCheckinsMinMaxIDLimitRadiusOffsetLimitOK(t *testing.T) {
 
 // localCheckinTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the local checkin API.
-func localCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func localCheckinsTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

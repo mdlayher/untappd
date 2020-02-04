@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientVenueInfoBadVenue verifies that Client.Venue.Info returns an error when
@@ -108,7 +110,7 @@ func TestClientVenueInfoOK(t *testing.T) {
 
 // venueInfoTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the venue info API.
-func venueInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func venueInfoTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

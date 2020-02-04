@@ -1,13 +1,19 @@
-package untappd
+package untappd_test
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/mdlayher/untappd"
+	"github.com/nelsam/hel/pers"
 )
 
 // TestNewAuthHandler verifies that NewAuthHandler returns appropriate errors
@@ -24,17 +30,17 @@ func TestNewAuthHandler(t *testing.T) {
 	}{
 		{
 			description: "no client ID or client secret",
-			err:         ErrNoClientID,
+			err:         untappd.ErrNoClientID,
 		},
 		{
 			description:  "no client ID",
 			clientSecret: "bar",
-			err:          ErrNoClientID,
+			err:          untappd.ErrNoClientID,
 		},
 		{
 			description: "no client secret",
 			clientID:    "foo",
-			err:         ErrNoClientSecret,
+			err:         untappd.ErrNoClientSecret,
 		},
 		{
 			description:  "bad redirect URL",
@@ -55,21 +61,24 @@ func TestNewAuthHandler(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if _, _, err := NewAuthHandler(tt.clientID, tt.clientSecret, tt.redirectURL, nil, nil); err != tt.err {
-			// Special case: check for matching type *url.Error
-			if reflect.TypeOf(err) == reflect.TypeOf(tt.err) {
-				continue
-			}
+		t.Run(tt.description, func(t *testing.T) {
+			t.Parallel()
+			if _, _, err := untappd.NewAuthHandler(tt.clientID, tt.clientSecret, tt.redirectURL, nil, nil); err != tt.err {
+				// Special case: check for matching type *url.Error
+				if reflect.TypeOf(err) == reflect.TypeOf(tt.err) {
+					return
+				}
 
-			t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
-		}
+				t.Fatalf("unexpected error for test %q: %v != %v", tt.description, err, tt.err)
+			}
+		})
 	}
 }
 
 // TestAuthHandlerServeHTTPBadMethod verifies that AuthHandler returns a
 // HTTP 405 on non-GET method.
 func TestAuthHandlerServeHTTPBadMethod(t *testing.T) {
-	url, done := testAuthHandler(t, "http://foo.com/", "", nil)
+	url, done := listeningTestAuthHandler(t, "http://foo.com/", nil, newMockHTTPClient())
 	defer done()
 
 	res, err := http.Post(url, "", nil)
@@ -85,7 +94,7 @@ func TestAuthHandlerServeHTTPBadMethod(t *testing.T) {
 // TestAuthHandlerServeHTTPBadMethod verifies that AuthHandler returns a
 // HTTP 401 if no code parameter is passed via query string.
 func TestAuthHandlerServeHTTPNoCodeParameter(t *testing.T) {
-	url, done := testAuthHandler(t, "http://foo.com", "", nil)
+	url, done := listeningTestAuthHandler(t, "http://foo.com", nil, newMockHTTPClient())
 	defer done()
 
 	res, err := http.Get(url)
@@ -119,7 +128,7 @@ func TestAuthHandlerServeHTTPOAuthNotJSON(t *testing.T) {
 // 502 if the upstream server returns broken JSON.
 func TestAuthHandlerServeHTTPOAuthBadJSON(t *testing.T) {
 	testOAuthBadGateway(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", jsonContentType)
+		w.Header().Set("Content-Type", untappd.JSONContentType)
 		w.Write([]byte("{"))
 	})
 }
@@ -130,19 +139,23 @@ func TestAuthHandlerServeHTTPOAuthBadJSON(t *testing.T) {
 func TestAuthHandlerServeHTTPOK(t *testing.T) {
 	expectedToken := "ABCDEF0123456789"
 
-	oauthHost, done := testOAuthServer(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", jsonContentType)
-		w.Write([]byte(`{"response":{"access_token":"` + expectedToken + `"}}`))
-	})
-	defer done()
+	client := newMockHTTPClient()
+	body := bytes.NewBufferString(`{"response":{"access_token":"` + expectedToken + `"}}`)
+	pers.Return(client.GetOutput, &http.Response{
+		StatusCode: http.StatusOK,
+		Header: http.Header{
+			"Content-Type": []string{untappd.JSONContentType},
+		},
+		Body: ioutil.NopCloser(body),
+	}, nil)
 
 	var accessToken string
 	tokenFn := func(token string, w http.ResponseWriter, r *http.Request) {
 		accessToken = token
 	}
 
-	url, done2 := testAuthHandler(t, "http://foo.com", oauthHost, tokenFn)
-	defer done2()
+	url, done := listeningTestAuthHandler(t, "http://foo.com", tokenFn, client)
+	defer done()
 
 	res, err := http.Get(url + "?code=foo")
 	if err != nil {
@@ -179,7 +192,21 @@ func Test_defaultTokenFnBadWriter(t *testing.T) {
 		ResponseRecorder: httptest.NewRecorder(),
 	}
 
-	defaultTokenFn("", w, nil)
+	client := newMockHTTPClient()
+	body := bytes.NewBufferString(`{"response":{"access_token":"foo"}}`)
+	resp := &http.Response{
+		StatusCode: 200,
+		Header: http.Header{
+			"Content-Type": []string{"application/json"},
+		},
+		Body: ioutil.NopCloser(body),
+	}
+	pers.Return(client.GetOutput, resp, nil)
+
+	h := newTestAuthHandler(t, "http://foo.com", nil, client)
+
+	req := httptest.NewRequest("GET", "http://bar.com?code=foo", ioutil.NopCloser(bytes.NewBufferString("")))
+	h.ServeHTTP(w, req)
 
 	if got, want := w.Code, http.StatusInternalServerError; got != want {
 		t.Fatalf("unexpected HTTP status code: %d != %d", got, want)
@@ -190,32 +217,40 @@ func Test_defaultTokenFnBadWriter(t *testing.T) {
 // if it is unable to write a response body.
 func Test_defaultTokenFnOK(t *testing.T) {
 	for _, tok := range []string{"foo", "bar", "baz"} {
-		rec := httptest.NewRecorder()
+		t.Run(fmt.Sprintf("auth token %s", tok), func(t *testing.T) {
+			client := newMockHTTPClient()
+			body := bytes.NewBufferString(fmt.Sprintf(`{"response":{"access_token":"%s"}}`, tok))
+			resp := &http.Response{
+				StatusCode: 200,
+				Header: http.Header{
+					"Content-Type": []string{"application/json"},
+				},
+				Body: ioutil.NopCloser(body),
+			}
+			pers.Return(client.GetOutput, resp, nil)
 
-		defaultTokenFn(tok, rec, nil)
+			h := newTestAuthHandler(t, "http://foo.com", nil, client)
 
-		if b := rec.Body.String(); b != tok {
-			t.Fatalf("unexpected response body: %q != %q", b, tok)
-		}
+			req := httptest.NewRequest("GET", "http://bar.com?code=foo", ioutil.NopCloser(bytes.NewBufferString("")))
+
+			rec := httptest.NewRecorder()
+			h.ServeHTTP(rec, req)
+
+			if got, want := rec.Code, http.StatusOK; got != want {
+				t.Fatalf("unexpected HTTP status code: %d != %d", got, want)
+			}
+			if b := rec.Body.String(); b != tok {
+				t.Fatalf("unexpected response body: %q != %q", b, tok)
+			}
+		})
 	}
 }
 
-// testAuthHandler creates a mocked AuthHandler which points at a httptest server,
+// listeningTestAuthHandler creates a mocked AuthHandler which points at a httptest server,
 // and returns that server's URL and a function to shut it down.
-func testAuthHandler(t *testing.T, redirectURL string, oauthHost string, fn TokenHandlerFunc) (string, func()) {
-	h, _, err := NewAuthHandler(
-		"foo",
-		"bar",
-		redirectURL,
-		fn,
-		nil,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	h.oAuthURL.Scheme = "http"
-	h.oAuthURL.Host = oauthHost
+func listeningTestAuthHandler(t *testing.T, redirectURL string, fn untappd.TokenHandlerFunc, client untappd.HTTPClient) (string, func()) {
+	t.Helper()
+	h := newTestAuthHandler(t, redirectURL, fn, client)
 
 	srv := httptest.NewServer(h)
 	return srv.URL, func() {
@@ -223,35 +258,35 @@ func testAuthHandler(t *testing.T, redirectURL string, oauthHost string, fn Toke
 	}
 }
 
-// testAuthHandler creates a httptest server which mocks an upstream OAuth server,
-// and which invokes an input closure, returning that server's host and a function
-// to shut it down.
-func testOAuthServer(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (string, func()) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", jsonContentType)
+// newTestAuthHandler creates an AuthHandler for testing.
+func newTestAuthHandler(t *testing.T, redirectURL string, fn untappd.TokenHandlerFunc, client untappd.HTTPClient) *untappd.AuthHandler {
+	t.Helper()
 
-		if fn != nil {
-			fn(t, w, r)
-		}
-	}))
-
-	u, err := url.Parse(srv.URL)
+	if client == nil {
+		t.Fatal("A mocked out HTTP client must be provided to prevent hitting untappd's API directly")
+	}
+	h, _, err := untappd.NewAuthHandler(
+		"foo",
+		"bar",
+		redirectURL,
+		fn,
+		client,
+	)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
-	return u.Host, func() {
-		srv.Close()
-	}
+	return h
 }
 
 // testOAuthBadGateway handles common setup procedures for tests which check
 // for a HTTP 503 Bad Gateway error.
 func testOAuthBadGateway(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) {
-	oauthHost, done := testOAuthServer(t, fn)
-	defer done()
+	t.Helper()
 
-	url, done2 := testAuthHandler(t, "http://foo.com", oauthHost, nil)
+	client, done := newMockHTTPClientHandler(t, fn)
+	defer done()
+	url, done2 := listeningTestAuthHandler(t, "http://foo.com", nil, client)
 	defer done2()
 
 	res, err := http.Get(url + "?code=foo")

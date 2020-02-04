@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientUserBeersOK verifies that Client.User.Beers always sets the
@@ -43,7 +45,7 @@ func TestClientUserBeersOffsetLimitBadUser(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.User.BeersOffsetLimitSort("foo", 0, 25, SortDate)
+	_, _, err := c.User.BeersOffsetLimitSort("foo", 0, 25, untappd.SortDate)
 	assertInvalidUserErr(t, err)
 }
 
@@ -56,7 +58,7 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
-	var sort = SortDate
+	var sort = untappd.SortDate
 
 	username := "mdlayher"
 	c, done := userBeersTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
@@ -80,8 +82,8 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Beer{
-		&Beer{
+	expected := []*untappd.Beer{
+		&untappd.Beer{
 			ID:         1,
 			Name:       "Oberon Ale",
 			Style:      "American Pale Wheat Ale",
@@ -89,11 +91,11 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 			RecentHad:  time.Date(2016, 12, 31, 19, 48, 38, 0, time.FixedZone("-0500", -5*60*60)),
 			UserRating: 3.75,
 			Count:      1,
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Bell's Brewery, Inc.",
 			},
 		},
-		&Beer{
+		&untappd.Beer{
 			ID:         2,
 			Name:       "Two Hearted Ale",
 			Style:      "American IPA",
@@ -101,7 +103,7 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 			RecentHad:  time.Date(2016, 12, 27, 19, 48, 38, 0, time.FixedZone("-0500", -5*60*60)),
 			UserRating: 4.25,
 			Count:      1,
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Bell's Brewery, Inc.",
 			},
 		},
@@ -137,7 +139,7 @@ func TestClientUserBeersOffsetLimitOK(t *testing.T) {
 
 // userBeersTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user beers API.
-func userBeersTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func userBeersTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

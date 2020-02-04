@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientAuthCheckinOK verifies that Client.Auth.Checkin always sets the
@@ -22,14 +24,14 @@ func TestClientAuthCheckinOK(t *testing.T) {
 	foursquareID := "ABCDEF"
 
 	latitude := 1.0
-	sLatitude := formatFloat(latitude)
+	sLatitude := untappd.FormatFloat(latitude)
 	longitude := 1.0
-	sLongitude := formatFloat(longitude)
+	sLongitude := untappd.FormatFloat(longitude)
 
 	comment := "hello world"
 
 	rating := 3.5
-	sRating := formatFloat(rating)
+	sRating := untappd.FormatFloat(rating)
 
 	facebook := true
 	twitter := true
@@ -55,7 +57,7 @@ func TestClientAuthCheckinOK(t *testing.T) {
 	})
 	defer done()
 
-	if _, _, err := c.Auth.Checkin(CheckinRequest{
+	if _, _, err := c.Auth.Checkin(untappd.CheckinRequest{
 		BeerID:    beerID,
 		GMTOffset: offset,
 		TimeZone:  timezone,
@@ -84,7 +86,7 @@ func TestClientAuthCheckinBadBeerID(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.Auth.Checkin(CheckinRequest{
+	_, _, err := c.Auth.Checkin(untappd.CheckinRequest{
 		BeerID: beerID,
 	})
 	assertInvalidCheckinErr(t, err)
@@ -92,7 +94,7 @@ func TestClientAuthCheckinBadBeerID(t *testing.T) {
 
 // authCheckinTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the Check-in API.
-func authCheckinTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func authCheckinTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always POST request
 		method := "POST"

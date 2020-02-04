@@ -22,16 +22,16 @@ import (
 )
 
 const (
-	// formEncodedContentType is the content type for key/value POST
+	// FormEncodedContentType is the content type for key/value POST
 	// body requests.
-	formEncodedContentType = "application/x-www-form-urlencoded"
+	FormEncodedContentType = "application/x-www-form-urlencoded"
 
-	// jsonContentType is the content type for JSON data.
-	jsonContentType = "application/json"
+	// JSONContentType is the content type for JSON data.
+	JSONContentType = "application/json"
 
-	// untappdUserAgent is the default user agent this package will report to
+	// UserAgent is the default user agent this package will report to
 	// the Untappd APIv4.
-	untappdUserAgent = "github.com/mdlayher/untappd"
+	UserAgent = "github.com/mdlayher/untappd"
 )
 
 var (
@@ -47,12 +47,18 @@ var (
 	ErrNoClientSecret = errors.New("no client secret")
 )
 
+// HTTPClient represents the methods we need to use from an HTTP client.
+type HTTPClient interface {
+	Get(url string) (r *http.Response, err error)
+	Do(req *http.Request) (r *http.Response, err error)
+}
+
 // Client is a HTTP client for the Untappd APIv4.  It enables access to various
 // methods of the Untappd APIv4.
 type Client struct {
 	UserAgent string
 
-	client *http.Client
+	client HTTPClient
 	url    *url.URL
 
 	clientID     string
@@ -147,7 +153,7 @@ type Client struct {
 //
 // To use a Client with the Untappd APIv4, you must register for an API key
 // here: https://untappd.com/api/register.
-func NewClient(clientID string, clientSecret string, client *http.Client) (*Client, error) {
+func NewClient(clientID string, clientSecret string, client HTTPClient) (*Client, error) {
 	// Disallow empty ID and secret
 	if clientID == "" {
 		return nil, ErrNoClientID
@@ -184,7 +190,7 @@ func NewAuthenticatedClient(accessToken string, client *http.Client) (*Client, e
 
 // newClient handles common setup logic for a Client for NewClient and
 // NewAuthenticatedClient.
-func newClient(clientID string, clientSecret string, accessToken string, client *http.Client) (*Client, error) {
+func newClient(clientID string, clientSecret string, accessToken string, client HTTPClient) (*Client, error) {
 	// If input client is nil, use http.DefaultClient
 	if client == nil {
 		client = http.DefaultClient
@@ -192,7 +198,7 @@ func newClient(clientID string, clientSecret string, accessToken string, client 
 
 	// Set up basic client
 	c := &Client{
-		UserAgent: untappdUserAgent,
+		UserAgent: UserAgent,
 
 		client: client,
 		url: &url.URL{
@@ -291,11 +297,11 @@ func (c *Client) request(method string, endpoint string, body url.Values, query 
 	}
 
 	// Set headers to indicate proper content type
-	req.Header.Add("Accept", jsonContentType)
+	req.Header.Add("Accept", JSONContentType)
 
 	// For POST requests, add proper headers
 	if hasBody {
-		req.Header.Add("Content-Type", formEncodedContentType)
+		req.Header.Add("Content-Type", FormEncodedContentType)
 		req.Header.Add("Content-Length", strconv.Itoa(length))
 	}
 
@@ -356,8 +362,8 @@ func (c *Client) getCheckins(endpoint string, q url.Values) ([]*Checkin, *http.R
 // encountered.
 func checkResponse(res *http.Response) error {
 	// Ensure correct content type
-	if cType := res.Header.Get("Content-Type"); !strings.HasPrefix(cType, jsonContentType) {
-		return fmt.Errorf("expected %s content type, but received %s", jsonContentType, cType)
+	if cType := res.Header.Get("Content-Type"); !strings.HasPrefix(cType, JSONContentType) {
+		return fmt.Errorf("expected %s content type, but received %s", JSONContentType, cType)
 	}
 
 	// Check for 200-range status code
@@ -393,8 +399,8 @@ func checkResponse(res *http.Response) error {
 	}
 }
 
-// formatFloat converts a float64 to a string in a common way, to
+// FormatFloat converts a float64 to a string in a common way, to
 // reduce inconsistencies with repeated calls to strconv.FormatFloat.
-func formatFloat(f float64) string {
+func FormatFloat(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }

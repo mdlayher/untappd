@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientUserWishListOK verifies that Client.User.WishList always sets the
@@ -42,7 +44,7 @@ func TestClientUserWishListOffsetLimitBadUser(t *testing.T) {
 	})
 	defer done()
 
-	_, _, err := c.User.WishListOffsetLimitSort("foo", 0, 25, SortDate)
+	_, _, err := c.User.WishListOffsetLimitSort("foo", 0, 25, untappd.SortDate)
 	assertInvalidUserErr(t, err)
 }
 
@@ -55,7 +57,7 @@ func TestClientUserWishListOffsetLimitSortOK(t *testing.T) {
 	var limit = 25
 	sLimit := strconv.Itoa(limit)
 
-	var sort = SortDate
+	var sort = untappd.SortDate
 
 	username := "mdlayher"
 	c, done := userWishListTestClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
@@ -79,20 +81,20 @@ func TestClientUserWishListOffsetLimitSortOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Beer{
-		&Beer{
+	expected := []*untappd.Beer{
+		&untappd.Beer{
 			ID:    1,
 			Name:  "Rare Bourbon County Brand Stout",
 			Style: "American Imperial / Double Stout",
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Goose Island Beer Co.",
 			},
 		},
-		&Beer{
+		&untappd.Beer{
 			ID:    2,
 			Name:  "Double Barrel Hunahpu's",
 			Style: "American Imperial / Double Stout",
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Cigar City Brewing",
 			},
 		},
@@ -116,7 +118,7 @@ func TestClientUserWishListOffsetLimitSortOK(t *testing.T) {
 
 // userWishListTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user wishlist API.
-func userWishListTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func userWishListTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

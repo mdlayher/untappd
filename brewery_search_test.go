@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientBrewerySearchOK verifies that Client.Brewery.Search always sets the
@@ -72,8 +74,8 @@ func TestClientBrewerySearchOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Brewery{
-		&Brewery{
+	expected := []*untappd.Brewery{
+		&untappd.Brewery{
 			ID:      1,
 			Name:    "Russian River Brewing Company",
 			Country: "United States",
@@ -95,7 +97,7 @@ func TestClientBrewerySearchOffsetLimitOK(t *testing.T) {
 
 // brewerySearchTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user breweries API.
-func brewerySearchTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func brewerySearchTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"

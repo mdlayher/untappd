@@ -1,39 +1,41 @@
-package untappd
+package untappd_test
 
 import (
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // assertExpectedCheckins validates a set of mock checkins from a test function
 // against the expected checkin JSON used when testing this package.
-func assertExpectedCheckins(t *testing.T, checkins []*Checkin) {
-	expected := []*Checkin{
-		&Checkin{
+func assertExpectedCheckins(t *testing.T, checkins []*untappd.Checkin) {
+	expected := []*untappd.Checkin{
+		&untappd.Checkin{
 			ID:      137117722,
 			Comment: "When in Rome..",
-			Beer: &Beer{
+			Beer: &untappd.Beer{
 				Name:  "Brooklyn Bowl Pale Ale",
 				Style: "American Pale Ale",
 			},
-			Brewery: &Brewery{
+			Brewery: &untappd.Brewery{
 				Name: "Kelso of Brooklyn",
 			},
-			User: &User{
+			User: &untappd.User{
 				UserName: "gregavola",
 			},
-			Badges: []*Badge{{
+			Badges: []*untappd.Badge{{
 				Name: "Taste the Music",
 			}},
-			Toasts: []*Toast{{
+			Toasts: []*untappd.Toast{{
 				ID: 1,
-				User: &User{
+				User: &untappd.User{
 					UserName: "gregavola",
 				},
 			}},
-			Comments: []*Comment{{
+			Comments: []*untappd.Comment{{
 				ID:      1,
 				Comment: "hello, world",
-				User: &User{
+				User: &untappd.User{
 					UserName: "gregavola",
 				},
 			}},

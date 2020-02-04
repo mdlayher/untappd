@@ -1,4 +1,4 @@
-package untappd
+package untappd_test
 
 import (
 	"net/http"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mdlayher/untappd"
 )
 
 // TestClientUserBadgesOK verifies that Client.User.Badges always sets the
@@ -73,12 +75,12 @@ func TestClientUserBadgesOffsetLimitOK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*Badge{
-		&Badge{
+	expected := []*untappd.Badge{
+		&untappd.Badge{
 			ID:   189,
 			Name: "Taste the Music",
 		},
-		&Badge{
+		&untappd.Badge{
 			ID:   190,
 			Name: "Oberon (2015)",
 		},
@@ -96,7 +98,7 @@ func TestClientUserBadgesOffsetLimitOK(t *testing.T) {
 
 // userBadgesTestClient builds upon testClient, and adds additional sanity checks
 // for tests which target the user badges API.
-func userBadgesTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*Client, func()) {
+func userBadgesTestClient(t *testing.T, fn func(t *testing.T, w http.ResponseWriter, r *http.Request)) (*untappd.Client, func()) {
 	return testClient(t, func(t *testing.T, w http.ResponseWriter, r *http.Request) {
 		// Always GET request
 		method := "GET"
