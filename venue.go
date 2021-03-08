@@ -96,9 +96,9 @@ type rawVenue struct {
 		Items []*rawCheckin `json:"items"`
 	} `json:"checkins"`
 	Icon struct {
-		SmallIcon  url.URL `json:"sm"`
-		MediumIcon url.URL `json:"md"`
-		LargeIcon  url.URL `json:"lg"`
+		SmallIcon  responseURL `json:"sm"`
+		MediumIcon responseURL `json:"md"`
+		LargeIcon  responseURL `json:"lg"`
 	} `json:"venue_icon"`
 }
 
