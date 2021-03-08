@@ -1,6 +1,7 @@
 package untappd
 
 import (
+	"net/url"
 	"time"
 )
 
@@ -29,6 +30,17 @@ type Venue struct {
 
 	// Checkins at this venue.
 	Checkins []*Checkin
+
+	// A logo or icon of the venue
+	Icon VenueIcon
+}
+
+// VenueIcon contains links to media regarding Venues. Included
+// are links to a small, medium, and large photo for a given Venue.
+type VenueIcon struct {
+	SmallIcon  url.URL
+	MediumIcon url.URL
+	LargeIcon  url.URL
 }
 
 // VenueService is a "service" which allows access to API methods involving
@@ -83,6 +95,11 @@ type rawVenue struct {
 		Count int           `json:"count"`
 		Items []*rawCheckin `json:"items"`
 	} `json:"checkins"`
+	Icon struct {
+		SmallIcon  responseURL `json:"sm"`
+		MediumIcon responseURL `json:"md"`
+		LargeIcon  responseURL `json:"lg"`
+	} `json:"venue_icon"`
 }
 
 // export creates an exported Venue from a rawVenue struct, allowing for
@@ -99,6 +116,12 @@ func (r *rawVenue) export() *Venue {
 		checkins[i] = r.Checkins.Items[i].export()
 	}
 
+	icon := VenueIcon{
+		SmallIcon:  url.URL(r.Icon.SmallIcon),
+		MediumIcon: url.URL(r.Icon.MediumIcon),
+		LargeIcon:  url.URL(r.Icon.LargeIcon),
+	}
+
 	return &Venue{
 		ID:         r.ID,
 		Name:       r.Name,
@@ -109,5 +132,6 @@ func (r *rawVenue) export() *Venue {
 		Foursquare: r.Foursquare,
 		TopBeers:   beers,
 		Checkins:   checkins,
+		Icon:       icon,
 	}
 }
