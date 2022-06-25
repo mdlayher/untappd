@@ -20,6 +20,7 @@ type Beer struct {
 	ID          int
 	Name        string
 	Label       url.URL
+	LabelHD     url.URL
 	ABV         float64
 	IBU         int
 	Slug        string
@@ -66,6 +67,7 @@ type rawBeer struct {
 	ID            int          `json:"bid"`
 	Name          string       `json:"beer_name"`
 	Label         responseURL  `json:"beer_label"`
+	LabelHD       responseURL  `json:"beer_label_hd"`
 	ABV           float64      `json:"beer_abv"`
 	IBU           int          `json:"beer_ibu"`
 	Slug          string       `json:"beer_slug"`
@@ -89,6 +91,7 @@ func (r *rawBeer) export() *Beer {
 		ID:            r.ID,
 		Name:          r.Name,
 		Label:         url.URL(r.Label),
+		LabelHD:       url.URL(r.LabelHD),
 		ABV:           r.ABV,
 		IBU:           r.IBU,
 		Slug:          r.Slug,
